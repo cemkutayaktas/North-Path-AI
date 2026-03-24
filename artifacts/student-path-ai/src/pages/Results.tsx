@@ -164,10 +164,11 @@ function ProfileBanner({ profile }: { profile: ProfileType }) {
 }
 
 // ─── Tab 1: My Matches ────────────────────────────────────────────────────────
-function MajorCard({ result, rank, index }: { result: MatchResult; rank: typeof RANK_CONFIG[0]; index: number }) {
+function MajorCard({ result, rank, index, topScore }: { result: MatchResult; rank: typeof RANK_CONFIG[0]; index: number; topScore: number }) {
   const { t } = useLang();
   const [expanded, setExpanded] = useState(index === 0);
   const [pathwayOpen, setPathwayOpen] = useState(false);
+  const pct = Math.round((result.score / (topScore || 1)) * 100);
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.12 }}>
@@ -186,7 +187,7 @@ function MajorCard({ result, rank, index }: { result: MatchResult; rank: typeof 
             <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5", index === 0 ? "bg-primary/10" : "bg-muted")}>
               <Briefcase className={cn("w-5 h-5", index === 0 ? "text-primary" : "text-muted-foreground")} />
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <h3 className="text-lg sm:text-xl font-display font-bold leading-tight">{result.major}</h3>
               <div className="flex flex-wrap items-center gap-2 mt-1.5">
                 <ConfBadge level={result.confidence} />
@@ -195,6 +196,18 @@ function MajorCard({ result, rank, index }: { result: MatchResult; rank: typeof 
                 </span>
               </div>
               <p className="text-xs text-muted-foreground mt-1">{result.explanation}</p>
+              {/* Visual match bar */}
+              <div className="flex items-center gap-3 mt-3">
+                <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${pct}%` }}
+                    transition={{ duration: 0.8, delay: 0.3 + index * 0.1, ease: "easeOut" }}
+                    className={cn("h-full rounded-full", index === 0 ? "bg-primary" : index === 1 ? "bg-secondary" : "bg-muted-foreground")}
+                  />
+                </div>
+                <span className="text-xs font-bold text-foreground w-10 text-right">{pct}%</span>
+              </div>
             </div>
           </div>
           <button onClick={() => setExpanded(e => !e)}
@@ -647,6 +660,46 @@ export default function Results() {
         {/* Profile banner */}
         {profile && <ProfileBanner profile={profile} />}
 
+        {/* Quick Overview — Visual Score Bars */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+          className="mb-8 grid grid-cols-1 sm:grid-cols-3 gap-4"
+        >
+          {results.map((r, i) => {
+            const topScore = results[0]?.score ?? 1;
+            const pct = Math.round((r.score / topScore) * 100);
+            const barColor = i === 0 ? "bg-primary" : i === 1 ? "bg-secondary" : "bg-muted-foreground";
+            const rankLabel = i === 0 ? t("results.rank.best") : i === 1 ? t("results.rank.strong") : t("results.rank.good");
+            return (
+              <Card key={r.major} className={cn(
+                "p-5 border-2 transition-shadow hover:shadow-md",
+                i === 0 ? "border-primary/40 shadow-lg shadow-primary/10" : "border-border/60"
+              )}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className={cn(
+                    "text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full",
+                    i === 0 ? "bg-primary/10 text-primary" : i === 1 ? "bg-secondary/10 text-secondary" : "bg-muted text-muted-foreground"
+                  )}>
+                    #{i + 1} {rankLabel}
+                  </span>
+                  <span className="text-2xl font-display font-extrabold">{pct}%</span>
+                </div>
+                <h4 className="font-display font-bold text-sm mb-3 leading-tight">{r.major}</h4>
+                <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${pct}%` }}
+                    transition={{ duration: 1, delay: 0.5 + i * 0.15, ease: "easeOut" }}
+                    className={cn("h-full rounded-full", barColor)}
+                  />
+                </div>
+                <div className="mt-2 flex items-center gap-1.5">
+                  <ConfBadge level={r.confidence} />
+                </div>
+              </Card>
+            );
+          })}
+        </motion.div>
+
         {/* Tabs */}
         <Tabs defaultValue="matches" className="w-full">
           <div className="flex justify-center mb-6">
@@ -669,7 +722,7 @@ export default function Results() {
           <TabsContent value="matches">
             <div className="space-y-5">
               {results.map((r, i) => (
-                <MajorCard key={r.major} result={r} rank={RANK_CONFIG[i]} index={i} />
+                <MajorCard key={r.major} result={r} rank={RANK_CONFIG[i]} index={i} topScore={results[0]?.score ?? 1} />
               ))}
             </div>
           </TabsContent>
