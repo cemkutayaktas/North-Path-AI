@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "northpath-dev",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "export PATH=\"$HOME/.fnm:$PATH\" && eval \"$(fnm env)\" && cd artifacts/student-path-ai && pnpm dev"],
+      "port": 5173
+    }
+  ]
+}
