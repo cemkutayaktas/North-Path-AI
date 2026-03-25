@@ -5,11 +5,11 @@ import { useAccount } from "@/contexts/AccountContext";
 import { useLang } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { UserCircle, Mail, Lock, User, Eye, EyeOff, Compass, ArrowLeft, Check, X } from "lucide-react";
+import { UserCircle, Mail, Lock, User, Eye, EyeOff, Compass, ArrowLeft, Check, X, ShieldQuestion, KeyRound } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { checkPassword, isValidEmail } from "@/lib/accounts";
+import { checkPassword, isValidEmail, SECURITY_QUESTIONS } from "@/lib/accounts";
 
-type Tab = "login" | "register";
+type Tab = "login" | "register" | "forgot";
 
 function Field({
   label, type, value, onChange, icon: Icon, error, placeholder,
@@ -47,7 +47,7 @@ function Field({
   );
 }
 
-function LoginForm() {
+function LoginForm({ onForgot }: { onForgot: () => void }) {
   const { login } = useAccount();
   const { t } = useLang();
   const [, setLocation] = useLocation();
@@ -82,6 +82,10 @@ function LoginForm() {
       <Button type="submit" className="w-full" size="lg" disabled={loading}>
         {loading ? t("auth.btnSigningIn") : t("auth.btnSignIn")}
       </Button>
+      <button type="button" onClick={onForgot}
+        className="block w-full text-center text-xs text-primary hover:underline transition-colors">
+        {t("auth.forgotPassword")}
+      </button>
     </form>
   );
 }
@@ -131,6 +135,8 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [secQ, setSecQ] = useState("");
+  const [secA, setSecA] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [globalError, setGlobalError] = useState("");
@@ -153,7 +159,11 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
     if (Object.keys(errs).length > 0) return;
     setLoading(true);
     try {
-      const res = await register(username, email, password);
+      const res = await register(
+        username, email, password,
+        secQ || undefined,
+        secA.trim() ? secA : undefined,
+      );
       if (res.ok) setLocation("/account");
       else setGlobalError(res.error ?? t("auth.errorRegisterFailed"));
     } catch {
@@ -172,6 +182,27 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
         <PasswordStrength password={password} />
       </div>
       <Field label={t("auth.labelConfirmPassword")} type="password" value={confirm} onChange={setConfirm} icon={Lock} placeholder={t("auth.placeholderPasswordRepeat")} error={errors.confirm} />
+
+      {/* Security Question (optional but recommended) */}
+      <div className="pt-2 border-t border-border/60">
+        <label className="flex items-center gap-1.5 text-sm font-medium text-foreground mb-2">
+          <ShieldQuestion className="w-4 h-4 text-primary" />
+          {t("auth.labelSecurityQuestion")}
+        </label>
+        <select value={secQ} onChange={e => setSecQ(e.target.value)}
+          className="w-full h-11 px-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary mb-2">
+          <option value="">{t("auth.selectQuestion")}</option>
+          {SECURITY_QUESTIONS.map(q => (
+            <option key={q} value={q}>{t(`auth.${q}`)}</option>
+          ))}
+        </select>
+        {secQ && (
+          <input type="text" value={secA} onChange={e => setSecA(e.target.value)}
+            placeholder={t("auth.securityAnswerPlaceholder")}
+            className="w-full h-11 px-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+        )}
+      </div>
+
       {globalError && (
         <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 px-4 py-3 text-sm text-red-700 dark:text-red-300">{globalError}</div>
       )}
@@ -179,6 +210,124 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
         {loading ? t("auth.btnCreatingAccount") : t("auth.btnCreateAccount")}
       </Button>
     </form>
+  );
+}
+
+function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
+  const { getSecurityQuestion, resetPassword } = useAccount();
+  const { t } = useLang();
+  const [step, setStep] = useState<"email" | "answer" | "newPassword" | "done">("email");
+  const [email, setEmail] = useState("");
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [newPw, setNewPw] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const pwCheck = useMemo(() => checkPassword(newPw), [newPw]);
+
+  const handleEmailSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (!email.trim() || !isValidEmail(email)) { setError(t("auth.errorEmailInvalid")); return; }
+    const res = getSecurityQuestion(email);
+    if (!res.found) {
+      setError(res.question === undefined ? t("auth.errorNoAccount") : t("auth.errorNoSecurityQuestion"));
+      return;
+    }
+    setQuestion(res.question!);
+    setStep("answer");
+  };
+
+  const handleAnswerSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (!answer.trim()) { setError(t("auth.errorFillAll")); return; }
+    setStep("newPassword");
+  };
+
+  const handleResetSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (!pwCheck.valid) { setError(t("auth.errorPasswordRequirements")); return; }
+    if (newPw !== confirm) { setError(t("auth.errorPasswordMatch")); return; }
+    setLoading(true);
+    try {
+      const res = await resetPassword(email, answer, newPw);
+      if (res.ok) setStep("done");
+      else setError(res.error ?? "Reset failed.");
+    } catch {
+      setError("An error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      {step === "email" && (
+        <form onSubmit={handleEmailSubmit} className="space-y-4">
+          <p className="text-sm text-muted-foreground">{t("auth.resetSubtitle")}</p>
+          <Field label={t("auth.labelEmail")} type="email" value={email} onChange={setEmail} icon={Mail} placeholder={t("auth.placeholderEmail")} />
+          {error && (
+            <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 px-4 py-3 text-sm text-red-700 dark:text-red-300">{error}</div>
+          )}
+          <Button type="submit" className="w-full" size="lg">{t("auth.btnNext")}</Button>
+        </form>
+      )}
+
+      {step === "answer" && (
+        <form onSubmit={handleAnswerSubmit} className="space-y-4">
+          <p className="text-sm text-muted-foreground">{t("auth.answerQuestion")}</p>
+          <div className="rounded-xl border border-primary/30 bg-primary/5 px-4 py-3">
+            <p className="text-sm font-medium text-foreground flex items-center gap-2">
+              <ShieldQuestion className="w-4 h-4 text-primary shrink-0" />
+              {t(`auth.${question}`)}
+            </p>
+          </div>
+          <Field label={t("auth.securityAnswer")} type="text" value={answer} onChange={setAnswer} icon={KeyRound} placeholder={t("auth.securityAnswerPlaceholder")} />
+          {error && (
+            <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 px-4 py-3 text-sm text-red-700 dark:text-red-300">{error}</div>
+          )}
+          <Button type="submit" className="w-full" size="lg">{t("auth.btnNext")}</Button>
+        </form>
+      )}
+
+      {step === "newPassword" && (
+        <form onSubmit={handleResetSubmit} className="space-y-4">
+          <p className="text-sm text-muted-foreground">{t("auth.setNewPasswordTitle")}</p>
+          <div>
+            <Field label={t("account.newPassword")} type="password" value={newPw} onChange={setNewPw} icon={Lock} placeholder={t("auth.placeholderPasswordNew")} />
+            <PasswordStrength password={newPw} />
+          </div>
+          <Field label={t("account.confirmNewPassword")} type="password" value={confirm} onChange={setConfirm} icon={Lock} placeholder={t("auth.placeholderPasswordRepeat")} />
+          {error && (
+            <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 px-4 py-3 text-sm text-red-700 dark:text-red-300">{error}</div>
+          )}
+          <Button type="submit" className="w-full" size="lg" disabled={loading}>
+            {loading ? t("auth.btnResetting") : t("auth.btnResetPassword")}
+          </Button>
+        </form>
+      )}
+
+      {step === "done" && (
+        <div className="text-center space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center mx-auto">
+            <Check className="w-7 h-7 text-emerald-500" />
+          </div>
+          <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium">{t("auth.resetSuccess")}</p>
+          <Button onClick={onBack} className="w-full" size="lg">{t("auth.btnBackToLogin")}</Button>
+        </div>
+      )}
+
+      {step !== "done" && (
+        <p className="text-center text-xs text-muted-foreground">
+          {t("auth.rememberPassword")}{" "}
+          <button onClick={onBack} className="text-primary font-semibold hover:underline">{t("auth.signInLink")}</button>
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -218,43 +367,49 @@ export default function Auth() {
         </div>
 
         <Card className="border-2 border-border/60 shadow-xl shadow-black/5 overflow-hidden">
-          {/* Tab switcher */}
-          <div className="flex border-b border-border">
-            {(["login", "register"] as Tab[]).map(tabKey => (
-              <button key={tabKey} onClick={() => setTab(tabKey)}
-                className={cn(
-                  "flex-1 py-4 text-sm font-semibold transition-colors",
-                  tab === tabKey
-                    ? "text-primary border-b-2 border-primary -mb-px bg-primary/3"
-                    : "text-muted-foreground hover:text-foreground"
-                )}>
-                {tabKey === "login" ? t("auth.tabSignIn") : t("auth.tabCreateAccount")}
-              </button>
-            ))}
-          </div>
+          {/* Tab switcher — hidden during forgot password flow */}
+          {tab !== "forgot" && (
+            <div className="flex border-b border-border">
+              {(["login", "register"] as const).map(tabKey => (
+                <button key={tabKey} onClick={() => setTab(tabKey)}
+                  className={cn(
+                    "flex-1 py-4 text-sm font-semibold transition-colors",
+                    tab === tabKey
+                      ? "text-primary border-b-2 border-primary -mb-px bg-primary/3"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}>
+                  {tabKey === "login" ? t("auth.tabSignIn") : t("auth.tabCreateAccount")}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="p-6 sm:p-8">
             <div className="mb-6">
               <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
-                <UserCircle className="w-6 h-6 text-primary" />
+                {tab === "forgot"
+                  ? <KeyRound className="w-6 h-6 text-primary" />
+                  : <UserCircle className="w-6 h-6 text-primary" />}
               </div>
               <h1 className="text-xl font-display font-bold">
-                {tab === "login" ? t("auth.titleSignIn") : t("auth.titleRegister")}
+                {tab === "login" ? t("auth.titleSignIn") : tab === "register" ? t("auth.titleRegister") : t("auth.resetPassword")}
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
-                {tab === "login" ? t("auth.subtitleSignIn") : t("auth.subtitleRegister")}
+                {tab === "login" ? t("auth.subtitleSignIn") : tab === "register" ? t("auth.subtitleRegister") : ""}
               </p>
             </div>
 
-            {tab === "login"
-              ? <LoginForm />
-              : <RegisterForm onSuccess={() => setTab("login")} />}
+            {tab === "login" && <LoginForm onForgot={() => setTab("forgot")} />}
+            {tab === "register" && <RegisterForm onSuccess={() => setTab("login")} />}
+            {tab === "forgot" && <ForgotPasswordForm onBack={() => setTab("login")} />}
 
-            <p className="text-center text-xs text-muted-foreground mt-5">
-              {tab === "login"
-                ? <span>{t("auth.noAccount")} <button onClick={() => setTab("register")} className="text-primary font-semibold hover:underline">{t("auth.signUpFree")}</button></span>
-                : <span>{t("auth.alreadyAccount")} <button onClick={() => setTab("login")} className="text-primary font-semibold hover:underline">{t("auth.signInLink")}</button></span>}
-            </p>
+            {tab !== "forgot" && (
+              <p className="text-center text-xs text-muted-foreground mt-5">
+                {tab === "login"
+                  ? <span>{t("auth.noAccount")} <button onClick={() => setTab("register")} className="text-primary font-semibold hover:underline">{t("auth.signUpFree")}</button></span>
+                  : <span>{t("auth.alreadyAccount")} <button onClick={() => setTab("login")} className="text-primary font-semibold hover:underline">{t("auth.signInLink")}</button></span>}
+              </p>
+            )}
 
             <p className="text-center text-[11px] text-muted-foreground mt-4 leading-relaxed opacity-70">
               {t("auth.localDataNote")}

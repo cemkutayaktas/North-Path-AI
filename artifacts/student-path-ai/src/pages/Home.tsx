@@ -101,7 +101,7 @@ export default function Home() {
         <div className="absolute top-40 left-0 w-72 h-72 bg-primary/10 rounded-full blur-3xl -z-10 -translate-x-1/2" />
         <div className="absolute bottom-0 right-20 w-96 h-96 bg-secondary/10 rounded-full blur-3xl -z-10 translate-y-1/2" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-16 sm:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-10 sm:py-16 lg:py-24">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -114,7 +114,7 @@ export default function Home() {
                 <span>{t("home.badge")}</span>
               </div>
 
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-display font-extrabold leading-[1.1] mb-6">
+              <h1 className="text-3xl sm:text-5xl lg:text-7xl font-display font-extrabold leading-[1.1] mb-6">
                 {t("home.h1a")} <br />
                 <span className="text-gradient">{t("home.h1b")}</span>
               </h1>
@@ -137,7 +137,7 @@ export default function Home() {
                 </Link>
               </div>
 
-              <div className="mt-12 flex items-center gap-8 text-sm font-medium text-muted-foreground">
+              <div className="mt-8 sm:mt-12 flex flex-wrap items-center gap-4 sm:gap-8 text-sm font-medium text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Shield className="w-5 h-5 text-secondary" />
                   <span>{t("home.personalized")}</span>
@@ -213,7 +213,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════════════════
           FEATURES SECTION
       ═══════════════════════════════════════════════════════════════════════ */}
-      <section className="py-20 sm:py-28 relative">
+      <section className="py-14 sm:py-20 lg:py-28 relative">
         <div className="absolute inset-0 -z-10 opacity-50">
           <div className="absolute top-1/2 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -translate-x-1/2" />
           <div className="absolute bottom-0 right-0 w-72 h-72 bg-secondary/5 rounded-full blur-3xl translate-x-1/3" />
@@ -227,7 +227,7 @@ export default function Home() {
             custom={0}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl sm:text-4xl font-display font-extrabold mb-4">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold mb-4">
               {t("home.featuresTitle")}
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
@@ -287,7 +287,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════════════════
           HOW IT WORKS
       ═══════════════════════════════════════════════════════════════════════ */}
-      <section className="py-20 sm:py-28">
+      <section className="py-14 sm:py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial="hidden"
@@ -295,17 +295,17 @@ export default function Home() {
             viewport={{ once: true, margin: "-80px" }}
             variants={fadeUp}
             custom={0}
-            className="text-center mb-16"
+            className="text-center mb-10 sm:mb-16"
           >
-            <h2 className="text-3xl sm:text-4xl font-display font-extrabold mb-4">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold mb-4">
               {t("home.howItWorksTitle")}
             </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto">
               {t("home.howItWorksSubtitle")}
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 relative">
             {/* Connector line (desktop) */}
             <div className="hidden md:block absolute top-16 left-[16.67%] right-[16.67%] h-0.5 bg-gradient-to-r from-primary/30 via-secondary/30 to-primary/30" />
 
@@ -351,7 +351,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════════════════
           TESTIMONIALS
       ═══════════════════════════════════════════════════════════════════════ */}
-      <section className="py-20 sm:py-28 bg-card/50 border-t border-border/50 relative">
+      <section className="py-14 sm:py-20 lg:py-28 bg-card/50 border-t border-border/50 relative">
         <div className="absolute inset-0 -z-10">
           <div className="absolute bottom-0 left-1/2 w-[600px] h-[600px] bg-secondary/5 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2" />
         </div>
@@ -364,7 +364,7 @@ export default function Home() {
             custom={0}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl sm:text-4xl font-display font-extrabold mb-4">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold mb-4">
               {t("home.testimonialsTitle")}
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
@@ -412,7 +412,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════════════════
           FINAL CTA
       ═══════════════════════════════════════════════════════════════════════ */}
-      <section className="py-20 sm:py-28 relative overflow-hidden">
+      <section className="py-14 sm:py-20 lg:py-28 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary to-secondary opacity-[0.03] -z-10" />
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
@@ -425,7 +425,7 @@ export default function Home() {
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-6">
               <Compass className="w-8 h-8 text-primary" />
             </div>
-            <h2 className="text-3xl sm:text-4xl font-display font-extrabold mb-4">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold mb-4">
               {t("home.finalCtaTitle")}
             </h2>
             <p className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto">

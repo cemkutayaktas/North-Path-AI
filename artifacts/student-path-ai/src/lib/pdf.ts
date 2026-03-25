@@ -45,7 +45,6 @@ function addFooter(doc: jsPDF, pageNum: number, totalPages: number) {
 
 function checkPage(doc: jsPDF, y: number, needed: number, pageArr: number[]): number {
   if (y + needed > PAGE_H - 20) {
-    addFooter(doc, pageArr[0], 99);
     doc.addPage();
     pageArr[0]++;
     addHeader(doc);
@@ -224,7 +223,7 @@ export function generatePDF(
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(MED[0], MED[1], MED[2]);
-    const countriesText = r.countries.map(c => `${c.flag} ${c.name}`).join("  ·  ");
+    const countriesText = r.countries.map(c => c.name).join("  ·  ");
     const countryLines = doc.splitTextToSize(countriesText, CONTENT_W) as string[];
     doc.text(countryLines, MARGIN, y);
     y += countryLines.length * 3.8 + 3;
@@ -361,13 +360,12 @@ export function generatePDF(
     y += 22;
   }
 
-  // ── Final footer on all pages ─────────────────────────────────────────────
-  const finalPage = pageArr[0];
-  addFooter(doc, finalPage, finalPage);
-
-  // Retroactively add footers to earlier pages (they were added without totals)
-  // Actually since we added footers inline, just update the first cover page footer
-  // (cover page has no footer, that's fine)
+  // ── Add footers to all content pages (skip page 1 = cover) ────────────────
+  const totalPages = pageArr[0];
+  for (let p = 2; p <= totalPages; p++) {
+    doc.setPage(p);
+    addFooter(doc, p, totalPages);
+  }
 
   doc.save("NorthPathAI_Report.pdf");
 }

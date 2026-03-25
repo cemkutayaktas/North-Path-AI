@@ -1,18 +1,26 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import {
-  Account, SavedResult,
+  Account, SavedResult, ExportedData,
   getCurrentAccount, registerAccount, loginAccount, logoutAccount,
   saveResultToAccount, updateAccountGoals, updatePreferredCountries,
+  changePassword, exportAccountData, importAccountData,
+  getSecurityQuestionForEmail, resetPasswordWithSecurity, updateSecurityQuestion,
 } from "@/lib/accounts";
 
 interface AccountContextValue {
   account: Account | null;
   login: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
-  register: (username: string, email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  register: (username: string, email: string, password: string, securityQuestion?: string, securityAnswer?: string) => Promise<{ ok: boolean; error?: string }>;
   logout: () => void;
   saveResult: (data: SavedResult) => void;
   setGoals: (goals: string[]) => void;
   setPreferredCountries: (countries: string[]) => void;
+  changePass: (currentPassword: string, newPassword: string) => Promise<{ ok: boolean; error?: string }>;
+  exportData: () => ExportedData | null;
+  importData: (data: ExportedData) => { ok: boolean; error?: string };
+  getSecurityQuestion: (email: string) => { found: boolean; question?: string };
+  resetPassword: (email: string, securityAnswer: string, newPassword: string) => Promise<{ ok: boolean; error?: string }>;
+  updateSecurityQ: (currentPassword: string, question: string, answer: string) => Promise<{ ok: boolean; error?: string }>;
   refresh: () => void;
 }
 
@@ -31,8 +39,8 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     return { ok: res.ok, error: res.error };
   }, []);
 
-  const register = useCallback(async (username: string, email: string, password: string) => {
-    const res = await registerAccount(username, email, password);
+  const register = useCallback(async (username: string, email: string, password: string, securityQuestion?: string, securityAnswer?: string) => {
+    const res = await registerAccount(username, email, password, securityQuestion, securityAnswer);
     if (res.ok && res.account) setAccount(res.account);
     return { ok: res.ok, error: res.error };
   }, []);
@@ -60,8 +68,41 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     refresh();
   }, [account, refresh]);
 
+  const changePass = useCallback(async (currentPassword: string, newPassword: string) => {
+    if (!account) return { ok: false, error: "Not logged in." };
+    const res = await changePassword(account.id, currentPassword, newPassword);
+    return res;
+  }, [account]);
+
+  const exportData = useCallback(() => {
+    if (!account) return null;
+    return exportAccountData(account.id);
+  }, [account]);
+
+  const importData = useCallback((data: ExportedData) => {
+    if (!account) return { ok: false, error: "Not logged in." };
+    const res = importAccountData(account.id, data);
+    if (res.ok) refresh();
+    return res;
+  }, [account, refresh]);
+
+  const getSecurityQuestion = useCallback((email: string) => {
+    return getSecurityQuestionForEmail(email);
+  }, []);
+
+  const resetPassword = useCallback(async (email: string, securityAnswer: string, newPassword: string) => {
+    return resetPasswordWithSecurity(email, securityAnswer, newPassword);
+  }, []);
+
+  const updateSecurityQ = useCallback(async (currentPassword: string, question: string, answer: string) => {
+    if (!account) return { ok: false, error: "Not logged in." };
+    const res = await updateSecurityQuestion(account.id, currentPassword, question, answer);
+    if (res.ok) refresh();
+    return res;
+  }, [account, refresh]);
+
   return (
-    <AccountContext.Provider value={{ account, login, register, logout, saveResult, setGoals, setPreferredCountries, refresh }}>
+    <AccountContext.Provider value={{ account, login, register, logout, saveResult, setGoals, setPreferredCountries, changePass, exportData, importData, getSecurityQuestion, resetPassword, updateSecurityQ, refresh }}>
       {children}
     </AccountContext.Provider>
   );

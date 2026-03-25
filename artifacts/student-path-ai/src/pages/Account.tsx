@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useMemo } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { useAccount } from "@/contexts/AccountContext";
@@ -8,8 +8,11 @@ import { Card } from "@/components/ui/Card";
 import {
   UserCircle, LogOut, BookMarked, Target, Globe, ChevronRight,
   Star, CalendarDays, Sparkles, Plus, X, CheckCircle2, Trophy,
+  Settings, Lock, Download, Upload, Check, ShieldQuestion,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { checkPassword, SECURITY_QUESTIONS } from "@/lib/accounts";
+import { ExportedData } from "@/lib/accounts";
 
 const GOAL_SUGGESTIONS = [
   "Research at least 3 universities offering my top major",
@@ -202,7 +205,212 @@ function SavedResultCard({ savedResult }: { savedResult: NonNullable<ReturnType<
   );
 }
 
-type Section = "results" | "goals" | "countries";
+function ChangePasswordForm() {
+  const { changePass } = useAccount();
+  const { t } = useLang();
+  const [current, setCurrent] = useState("");
+  const [newPw, setNewPw] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const pwCheck = useMemo(() => checkPassword(newPw), [newPw]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(""); setSuccess(false);
+    if (!current) { setError("Please enter your current password."); return; }
+    if (!pwCheck.valid) { setError("New password must meet all requirements."); return; }
+    if (newPw !== confirm) { setError("New passwords do not match."); return; }
+    setLoading(true);
+    try {
+      const res = await changePass(current, newPw);
+      if (res.ok) { setSuccess(true); setCurrent(""); setNewPw(""); setConfirm(""); }
+      else setError(res.error ?? "Failed to change password.");
+    } catch { setError("An error occurred."); }
+    finally { setLoading(false); }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 max-w-sm">
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium">{t("account.currentPassword")}</label>
+        <input type="password" value={current} onChange={e => setCurrent(e.target.value)}
+          className="w-full h-10 px-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+      </div>
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium">{t("account.newPassword")}</label>
+        <input type="password" value={newPw} onChange={e => setNewPw(e.target.value)}
+          className="w-full h-10 px-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+        {newPw && (
+          <div className="flex gap-1 mt-1">
+            {[pwCheck.minLength, pwCheck.hasUppercase, pwCheck.hasLowercase, pwCheck.hasNumber].map((met, i) => (
+              <div key={i} className={cn("h-1 flex-1 rounded-full transition-colors", met ? "bg-emerald-500" : "bg-border")} />
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium">{t("account.confirmNewPassword")}</label>
+        <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)}
+          className="w-full h-10 px-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+      </div>
+      {error && <p className="text-sm text-red-500">{error}</p>}
+      {success && (
+        <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
+          <Check className="w-4 h-4" /> {t("account.passwordChanged")}
+        </div>
+      )}
+      <Button type="submit" size="sm" disabled={loading}>
+        <Lock className="w-4 h-4 mr-1.5" />
+        {loading ? "..." : t("account.btnChangePassword")}
+      </Button>
+    </form>
+  );
+}
+
+function DataBackup() {
+  const { exportData, importData } = useAccount();
+  const { t } = useLang();
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const handleExport = () => {
+    const data = exportData();
+    if (!data) return;
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `NorthPathAI_Backup_${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result as string) as ExportedData;
+        const res = importData(data);
+        if (res.ok) setMessage({ type: "success", text: t("account.importSuccess") });
+        else setMessage({ type: "error", text: res.error ?? t("account.importError") });
+      } catch {
+        setMessage({ type: "error", text: t("account.importError") });
+      }
+    };
+    reader.readAsText(file);
+    // Reset so same file can be re-imported
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
+  return (
+    <div className="space-y-4">
+      <p className="text-xs text-muted-foreground">{t("account.dataBackupDesc")}</p>
+      <div className="flex flex-wrap gap-3">
+        <Button variant="outline" size="sm" onClick={handleExport}>
+          <Download className="w-4 h-4 mr-1.5" /> {t("account.exportData")}
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
+          <Upload className="w-4 h-4 mr-1.5" /> {t("account.importData")}
+        </Button>
+        <input ref={fileRef} type="file" accept=".json" className="hidden" onChange={handleImport} />
+      </div>
+      {message && (
+        <p className={cn("text-sm", message.type === "success" ? "text-emerald-600 dark:text-emerald-400" : "text-red-500")}>
+          {message.text}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function SecurityQuestionForm() {
+  const { account, updateSecurityQ } = useAccount();
+  const { t } = useLang();
+  const [password, setPassword] = useState("");
+  const [secQ, setSecQ] = useState("");
+  const [secA, setSecA] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const hasExisting = !!(account?.securityQuestion);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(""); setSuccess(false);
+    if (!password) { setError("Please enter your current password."); return; }
+    if (!secQ) { setError("Please select a security question."); return; }
+    if (!secA.trim()) { setError("Please provide an answer."); return; }
+    setLoading(true);
+    try {
+      const res = await updateSecurityQ(password, secQ, secA);
+      if (res.ok) { setSuccess(true); setPassword(""); setSecA(""); }
+      else setError(res.error ?? "Failed to update.");
+    } catch { setError("An error occurred."); }
+    finally { setLoading(false); }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 max-w-sm">
+      <p className="text-xs text-muted-foreground">{t("account.securityQuestionDesc")}</p>
+
+      {hasExisting && (
+        <div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400">
+          <Check className="w-3.5 h-3.5" /> {t("account.hasSecurityQuestion")}
+        </div>
+      )}
+      {!hasExisting && (
+        <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400">
+          <ShieldQuestion className="w-3.5 h-3.5" /> {t("account.noSecurityQuestionYet")}
+        </div>
+      )}
+
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium">{t("account.currentPassword")}</label>
+        <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+          className="w-full h-10 px-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+      </div>
+
+      <div className="space-y-1.5">
+        <label className="text-sm font-medium">{t("account.selectQuestion")}</label>
+        <select value={secQ} onChange={e => setSecQ(e.target.value)}
+          className="w-full h-10 px-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
+          <option value="">{t("account.selectQuestion")}</option>
+          {SECURITY_QUESTIONS.map(q => (
+            <option key={q} value={q}>{t(`auth.${q}`)}</option>
+          ))}
+        </select>
+      </div>
+
+      {secQ && (
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium">{t("account.securityAnswerLabel")}</label>
+          <input type="text" value={secA} onChange={e => setSecA(e.target.value)}
+            placeholder={t("auth.securityAnswerPlaceholder")}
+            className="w-full h-10 px-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+        </div>
+      )}
+
+      {error && <p className="text-sm text-red-500">{error}</p>}
+      {success && (
+        <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
+          <Check className="w-4 h-4" /> {t("account.securityQuestionUpdated")}
+        </div>
+      )}
+      <Button type="submit" size="sm" disabled={loading}>
+        <ShieldQuestion className="w-4 h-4 mr-1.5" />
+        {loading ? "..." : t("account.btnSetSecurityQuestion")}
+      </Button>
+    </form>
+  );
+}
+
+type Section = "results" | "goals" | "countries" | "settings";
 
 export default function Account() {
   const { account, logout } = useAccount();
@@ -219,6 +427,7 @@ export default function Account() {
     { id: "results", label: t("account.navSavedResults"), icon: Star },
     { id: "goals", label: t("account.navGoals"), icon: Target },
     { id: "countries", label: t("account.navCountries"), icon: Globe },
+    { id: "settings", label: t("account.navSettings"), icon: Settings },
   ];
 
   const STATS = [
@@ -312,6 +521,32 @@ export default function Account() {
                   <h2 className="font-display font-bold text-base">{t("account.navCountries")}</h2>
                 </div>
                 <CountryPicker />
+              </>
+            )}
+
+            {section === "settings" && (
+              <>
+                <div className="flex items-center gap-2 mb-5">
+                  <Lock className="w-4 h-4 text-primary" />
+                  <h2 className="font-display font-bold text-base">{t("account.changePassword")}</h2>
+                </div>
+                <ChangePasswordForm />
+
+                <div className="border-t border-border my-8" />
+
+                <div className="flex items-center gap-2 mb-5">
+                  <ShieldQuestion className="w-4 h-4 text-primary" />
+                  <h2 className="font-display font-bold text-base">{t("account.securityQuestion")}</h2>
+                </div>
+                <SecurityQuestionForm />
+
+                <div className="border-t border-border my-8" />
+
+                <div className="flex items-center gap-2 mb-5">
+                  <Download className="w-4 h-4 text-primary" />
+                  <h2 className="font-display font-bold text-base">{t("account.dataBackup")}</h2>
+                </div>
+                <DataBackup />
               </>
             )}
           </Card>
