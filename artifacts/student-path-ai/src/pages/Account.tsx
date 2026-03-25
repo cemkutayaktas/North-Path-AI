@@ -9,11 +9,11 @@ import { Card } from "@/components/ui/card";
 import {
   UserCircle, LogOut, BookMarked, Target, Globe, ChevronRight,
   Star, Sparkles, Plus, X, CheckCircle2, Trophy,
-  Settings, Lock, Download, Upload, Check, ShieldQuestion, Trash2, Mail, AtSign,
+  Settings, Lock, Download, Upload, Check, Trash2, Mail, AtSign,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { checkPassword, SECURITY_QUESTIONS } from "@/lib/accounts";
-import { ExportedData } from "@/lib/accounts";
+import { checkPassword } from "@/lib/accounts";
+import type { ExportedData } from "@/contexts/AccountContext";
 
 const GOAL_SUGGESTIONS = [
   "Research at least 3 universities offering my top major",
@@ -291,10 +291,10 @@ function DataBackup() {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       try {
         const data = JSON.parse(reader.result as string) as ExportedData;
-        const res = importData(data);
+        const res = await importData(data);
         if (res.ok) toast.success(t("account.importSuccess"));
         else toast.error(res.error ?? t("account.importError"));
       } catch {
@@ -409,8 +409,8 @@ function DangerZone() {
   const [confirm, setConfirm] = useState(false);
   const [, setLocation] = useLocation();
 
-  const handleDelete = () => {
-    const res = deleteAcc();
+  const handleDelete = async () => {
+    const res = await deleteAcc();
     if (res.ok) {
       toast.success(t("account.accountDeleted"));
       setLocation("/");
@@ -445,85 +445,6 @@ function DangerZone() {
   );
 }
 
-function SecurityQuestionForm() {
-  const { account, updateSecurityQ } = useAccount();
-  const { t } = useLang();
-  const [password, setPassword] = useState("");
-  const [secQ, setSecQ] = useState("");
-  const [secA, setSecA] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const hasExisting = !!(account?.securityQuestion);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    if (!password) { setError("Please enter your current password."); return; }
-    if (!secQ) { setError("Please select a security question."); return; }
-    if (!secA.trim()) { setError("Please provide an answer."); return; }
-    setLoading(true);
-    try {
-      const res = await updateSecurityQ(password, secQ, secA);
-      if (res.ok) {
-        toast.success(t("account.securityQuestionUpdated"));
-        setPassword(""); setSecA("");
-      } else {
-        toast.error(res.error ?? "Failed to update.");
-      }
-    } catch { toast.error("An error occurred."); }
-    finally { setLoading(false); }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-sm">
-      <p className="text-xs text-muted-foreground">{t("account.securityQuestionDesc")}</p>
-
-      {hasExisting && (
-        <div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400">
-          <Check className="w-3.5 h-3.5" /> {t("account.hasSecurityQuestion")}
-        </div>
-      )}
-      {!hasExisting && (
-        <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400">
-          <ShieldQuestion className="w-3.5 h-3.5" /> {t("account.noSecurityQuestionYet")}
-        </div>
-      )}
-
-      <div className="space-y-1.5">
-        <label className="text-sm font-medium">{t("account.currentPassword")}</label>
-        <input type="password" value={password} onChange={e => setPassword(e.target.value)}
-          className="w-full h-10 px-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
-      </div>
-
-      <div className="space-y-1.5">
-        <label className="text-sm font-medium">{t("account.selectQuestion")}</label>
-        <select value={secQ} onChange={e => setSecQ(e.target.value)}
-          className="w-full h-10 px-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
-          <option value="">{t("account.selectQuestion")}</option>
-          {SECURITY_QUESTIONS.map(q => (
-            <option key={q} value={q}>{t(`auth.${q}`)}</option>
-          ))}
-        </select>
-      </div>
-
-      {secQ && (
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium">{t("account.securityAnswerLabel")}</label>
-          <input type="text" value={secA} onChange={e => setSecA(e.target.value)}
-            placeholder={t("auth.securityAnswerPlaceholder")}
-            className="w-full h-10 px-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
-        </div>
-      )}
-
-      {error && <p className="text-sm text-red-500">{error}</p>}
-      <Button type="submit" size="sm" disabled={loading}>
-        <ShieldQuestion className="w-4 h-4 mr-1.5" />
-        {loading ? "..." : t("account.btnSetSecurityQuestion")}
-      </Button>
-    </form>
-  );
-}
 
 type Section = "results" | "goals" | "countries" | "settings";
 
@@ -656,15 +577,6 @@ export default function Account() {
                   <h2 className="font-display font-bold text-base">{t("account.changePassword")}</h2>
                 </div>
                 <ChangePasswordForm />
-
-                <div className="border-t border-border my-8" />
-
-                {/* Security Question */}
-                <div className="flex items-center gap-2 mb-5">
-                  <ShieldQuestion className="w-4 h-4 text-primary" />
-                  <h2 className="font-display font-bold text-base">{t("account.securityQuestion")}</h2>
-                </div>
-                <SecurityQuestionForm />
 
                 <div className="border-t border-border my-8" />
 

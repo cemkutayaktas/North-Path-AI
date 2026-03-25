@@ -4,7 +4,7 @@ import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { AccountProvider } from "@/contexts/AccountContext";
+import { AccountProvider, useAccount } from "@/contexts/AccountContext";
 
 import { Navbar } from "@/components/layout/Navbar";
 
@@ -14,11 +14,22 @@ import Results from "@/pages/Results";
 import About from "@/pages/About";
 import Auth from "@/pages/Auth";
 import Account from "@/pages/Account";
+import ResetPassword from "@/pages/ResetPassword";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
 
 function Router() {
+  const { loading } = useAccount();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-10 h-10 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
@@ -30,6 +41,7 @@ function Router() {
           <Route path="/about" component={About} />
           <Route path="/auth" component={Auth} />
           <Route path="/account" component={Account} />
+          <Route path="/reset-password" component={ResetPassword} />
           <Route component={NotFound} />
         </Switch>
       </main>

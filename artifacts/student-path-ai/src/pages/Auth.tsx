@@ -5,9 +5,9 @@ import { useAccount } from "@/contexts/AccountContext";
 import { useLang } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { UserCircle, Mail, Lock, User, Eye, EyeOff, Compass, ArrowLeft, Check, X, ShieldQuestion, KeyRound } from "lucide-react";
+import { UserCircle, Mail, Lock, User, Eye, EyeOff, Compass, ArrowLeft, Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { checkPassword, isValidEmail, SECURITY_QUESTIONS } from "@/lib/accounts";
+import { checkPassword, isValidEmail } from "@/lib/accounts";
 
 type Tab = "login" | "register" | "forgot";
 
@@ -135,8 +135,6 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [secQ, setSecQ] = useState("");
-  const [secA, setSecA] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [globalError, setGlobalError] = useState("");
@@ -159,11 +157,7 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
     if (Object.keys(errs).length > 0) return;
     setLoading(true);
     try {
-      const res = await register(
-        username, email, password,
-        secQ || undefined,
-        secA.trim() ? secA : undefined,
-      );
+      const res = await register(username, email, password);
       if (res.ok) setLocation("/account");
       else setGlobalError(res.error ?? t("auth.errorRegisterFailed"));
     } catch {
@@ -183,26 +177,6 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
       </div>
       <Field label={t("auth.labelConfirmPassword")} type="password" value={confirm} onChange={setConfirm} icon={Lock} placeholder={t("auth.placeholderPasswordRepeat")} error={errors.confirm} />
 
-      {/* Security Question (optional but recommended) */}
-      <div className="pt-2 border-t border-border/60">
-        <label className="flex items-center gap-1.5 text-sm font-medium text-foreground mb-2">
-          <ShieldQuestion className="w-4 h-4 text-primary" />
-          {t("auth.labelSecurityQuestion")}
-        </label>
-        <select value={secQ} onChange={e => setSecQ(e.target.value)}
-          className="w-full h-11 px-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary mb-2">
-          <option value="">{t("auth.selectQuestion")}</option>
-          {SECURITY_QUESTIONS.map(q => (
-            <option key={q} value={q}>{t(`auth.${q}`)}</option>
-          ))}
-        </select>
-        {secQ && (
-          <input type="text" value={secA} onChange={e => setSecA(e.target.value)}
-            placeholder={t("auth.securityAnswerPlaceholder")}
-            className="w-full h-11 px-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
-        )}
-      </div>
-
       {globalError && (
         <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 px-4 py-3 text-sm text-red-700 dark:text-red-300">{globalError}</div>
       )}
@@ -214,49 +188,22 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
 }
 
 function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
-  const { getSecurityQuestion, resetPassword } = useAccount();
+  const { forgotPassword } = useAccount();
   const { t } = useLang();
-  const [step, setStep] = useState<"email" | "answer" | "newPassword" | "done">("email");
   const [email, setEmail] = useState("");
-  const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState("");
-  const [newPw, setNewPw] = useState("");
-  const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
 
-  const pwCheck = useMemo(() => checkPassword(newPw), [newPw]);
-
-  const handleEmailSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     if (!email.trim() || !isValidEmail(email)) { setError(t("auth.errorEmailInvalid")); return; }
-    const res = getSecurityQuestion(email);
-    if (!res.found) {
-      setError(res.question === undefined ? t("auth.errorNoAccount") : t("auth.errorNoSecurityQuestion"));
-      return;
-    }
-    setQuestion(res.question!);
-    setStep("answer");
-  };
-
-  const handleAnswerSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    if (!answer.trim()) { setError(t("auth.errorFillAll")); return; }
-    setStep("newPassword");
-  };
-
-  const handleResetSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    if (!pwCheck.valid) { setError(t("auth.errorPasswordRequirements")); return; }
-    if (newPw !== confirm) { setError(t("auth.errorPasswordMatch")); return; }
     setLoading(true);
     try {
-      const res = await resetPassword(email, answer, newPw);
-      if (res.ok) setStep("done");
-      else setError(res.error ?? "Reset failed.");
+      const res = await forgotPassword(email);
+      if (res.ok) setSent(true);
+      else setError(res.error ?? "Failed to send reset email.");
     } catch {
       setError("An error occurred.");
     } finally {
@@ -264,70 +211,36 @@ function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
     }
   };
 
-  return (
-    <div className="space-y-4">
-      {step === "email" && (
-        <form onSubmit={handleEmailSubmit} className="space-y-4">
-          <p className="text-sm text-muted-foreground">{t("auth.resetSubtitle")}</p>
-          <Field label={t("auth.labelEmail")} type="email" value={email} onChange={setEmail} icon={Mail} placeholder={t("auth.placeholderEmail")} />
-          {error && (
-            <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 px-4 py-3 text-sm text-red-700 dark:text-red-300">{error}</div>
-          )}
-          <Button type="submit" className="w-full" size="lg">{t("auth.btnNext")}</Button>
-        </form>
-      )}
-
-      {step === "answer" && (
-        <form onSubmit={handleAnswerSubmit} className="space-y-4">
-          <p className="text-sm text-muted-foreground">{t("auth.answerQuestion")}</p>
-          <div className="rounded-xl border border-primary/30 bg-primary/5 px-4 py-3">
-            <p className="text-sm font-medium text-foreground flex items-center gap-2">
-              <ShieldQuestion className="w-4 h-4 text-primary shrink-0" />
-              {t(`auth.${question}`)}
-            </p>
-          </div>
-          <Field label={t("auth.securityAnswer")} type="text" value={answer} onChange={setAnswer} icon={KeyRound} placeholder={t("auth.securityAnswerPlaceholder")} />
-          {error && (
-            <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 px-4 py-3 text-sm text-red-700 dark:text-red-300">{error}</div>
-          )}
-          <Button type="submit" className="w-full" size="lg">{t("auth.btnNext")}</Button>
-        </form>
-      )}
-
-      {step === "newPassword" && (
-        <form onSubmit={handleResetSubmit} className="space-y-4">
-          <p className="text-sm text-muted-foreground">{t("auth.setNewPasswordTitle")}</p>
-          <div>
-            <Field label={t("account.newPassword")} type="password" value={newPw} onChange={setNewPw} icon={Lock} placeholder={t("auth.placeholderPasswordNew")} />
-            <PasswordStrength password={newPw} />
-          </div>
-          <Field label={t("account.confirmNewPassword")} type="password" value={confirm} onChange={setConfirm} icon={Lock} placeholder={t("auth.placeholderPasswordRepeat")} />
-          {error && (
-            <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 px-4 py-3 text-sm text-red-700 dark:text-red-300">{error}</div>
-          )}
-          <Button type="submit" className="w-full" size="lg" disabled={loading}>
-            {loading ? t("auth.btnResetting") : t("auth.btnResetPassword")}
-          </Button>
-        </form>
-      )}
-
-      {step === "done" && (
-        <div className="text-center space-y-4">
-          <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center mx-auto">
-            <Check className="w-7 h-7 text-emerald-500" />
-          </div>
-          <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium">{t("auth.resetSuccess")}</p>
-          <Button onClick={onBack} className="w-full" size="lg">{t("auth.btnBackToLogin")}</Button>
+  if (sent) {
+    return (
+      <div className="text-center space-y-4">
+        <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center mx-auto">
+          <Check className="w-7 h-7 text-emerald-500" />
         </div>
-      )}
+        <div className="space-y-1">
+          <p className="font-semibold text-foreground">{t("auth.resetEmailSent")}</p>
+          <p className="text-sm text-muted-foreground">{t("auth.resetEmailSentDesc")}</p>
+        </div>
+        <Button onClick={onBack} className="w-full" size="lg">{t("auth.btnBackToLogin")}</Button>
+      </div>
+    );
+  }
 
-      {step !== "done" && (
-        <p className="text-center text-xs text-muted-foreground">
-          {t("auth.rememberPassword")}{" "}
-          <button onClick={onBack} className="text-primary font-semibold hover:underline">{t("auth.signInLink")}</button>
-        </p>
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <p className="text-sm text-muted-foreground">{t("auth.resetSubtitle")}</p>
+      <Field label={t("auth.labelEmail")} type="email" value={email} onChange={setEmail} icon={Mail} placeholder={t("auth.placeholderEmail")} />
+      {error && (
+        <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 px-4 py-3 text-sm text-red-700 dark:text-red-300">{error}</div>
       )}
-    </div>
+      <Button type="submit" className="w-full" size="lg" disabled={loading}>
+        {loading ? t("auth.btnSendingReset") : t("auth.btnSendResetLink")}
+      </Button>
+      <p className="text-center text-xs text-muted-foreground">
+        {t("auth.rememberPassword")}{" "}
+        <button type="button" onClick={onBack} className="text-primary font-semibold hover:underline">{t("auth.signInLink")}</button>
+      </p>
+    </form>
   );
 }
 
