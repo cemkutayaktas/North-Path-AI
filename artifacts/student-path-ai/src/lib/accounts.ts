@@ -297,6 +297,58 @@ export async function updateSecurityQuestion(
   return { ok: true };
 }
 
+// ─── Update Username ─────────────────────────────────────────────────────────
+export async function updateUsername(
+  id: string,
+  currentPassword: string,
+  newUsername: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const accounts = loadAccounts();
+  const account = accounts.find(a => a.id === id);
+  if (!account) return { ok: false, error: "Account not found." };
+  const currentHash = await hashPassword(currentPassword);
+  const match = account.passwordHash === currentHash || (account as any).password === currentPassword;
+  if (!match) return { ok: false, error: "Current password is incorrect." };
+  const trimmed = newUsername.trim();
+  if (!trimmed || trimmed.length < 2) return { ok: false, error: "Username must be at least 2 characters." };
+  const idx = accounts.findIndex(a => a.id === id);
+  accounts[idx] = { ...accounts[idx], username: trimmed };
+  saveAccounts(accounts);
+  return { ok: true };
+}
+
+// ─── Update Email ─────────────────────────────────────────────────────────────
+export async function updateEmail(
+  id: string,
+  currentPassword: string,
+  newEmail: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const accounts = loadAccounts();
+  const account = accounts.find(a => a.id === id);
+  if (!account) return { ok: false, error: "Account not found." };
+  const currentHash = await hashPassword(currentPassword);
+  const match = account.passwordHash === currentHash || (account as any).password === currentPassword;
+  if (!match) return { ok: false, error: "Current password is incorrect." };
+  const trimmedEmail = newEmail.trim().toLowerCase();
+  if (!isValidEmail(trimmedEmail)) return { ok: false, error: "Please enter a valid email address." };
+  if (accounts.find(a => a.email === trimmedEmail && a.id !== id)) return { ok: false, error: "This email is already in use." };
+  const idx = accounts.findIndex(a => a.id === id);
+  accounts[idx] = { ...accounts[idx], email: trimmedEmail };
+  saveAccounts(accounts);
+  return { ok: true };
+}
+
+// ─── Delete Account ───────────────────────────────────────────────────────────
+export function deleteAccount(id: string): { ok: boolean; error?: string } {
+  const accounts = loadAccounts();
+  const idx = accounts.findIndex(a => a.id === id);
+  if (idx === -1) return { ok: false, error: "Account not found." };
+  accounts.splice(idx, 1);
+  saveAccounts(accounts);
+  setCurrentAccount(null);
+  return { ok: true };
+}
+
 // ─── Export / Import Account Data ───────────────────────────────────────────
 export interface ExportedData {
   version: 1;

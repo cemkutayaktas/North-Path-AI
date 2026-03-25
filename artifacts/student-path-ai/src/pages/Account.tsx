@@ -1,14 +1,15 @@
 import { useState, useRef, useMemo } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import { useAccount } from "@/contexts/AccountContext";
 import { useLang } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import {
   UserCircle, LogOut, BookMarked, Target, Globe, ChevronRight,
-  Star, CalendarDays, Sparkles, Plus, X, CheckCircle2, Trophy,
-  Settings, Lock, Download, Upload, Check, ShieldQuestion,
+  Star, Sparkles, Plus, X, CheckCircle2, Trophy,
+  Settings, Lock, Download, Upload, Check, ShieldQuestion, Trash2, Mail, AtSign,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { checkPassword, SECURITY_QUESTIONS } from "@/lib/accounts";
@@ -212,23 +213,26 @@ function ChangePasswordForm() {
   const [newPw, setNewPw] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const pwCheck = useMemo(() => checkPassword(newPw), [newPw]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(""); setSuccess(false);
+    setError("");
     if (!current) { setError("Please enter your current password."); return; }
     if (!pwCheck.valid) { setError("New password must meet all requirements."); return; }
     if (newPw !== confirm) { setError("New passwords do not match."); return; }
     setLoading(true);
     try {
       const res = await changePass(current, newPw);
-      if (res.ok) { setSuccess(true); setCurrent(""); setNewPw(""); setConfirm(""); }
-      else setError(res.error ?? "Failed to change password.");
-    } catch { setError("An error occurred."); }
+      if (res.ok) {
+        toast.success(t("account.passwordChanged"));
+        setCurrent(""); setNewPw(""); setConfirm("");
+      } else {
+        toast.error(res.error ?? "Failed to change password.");
+      }
+    } catch { toast.error("An error occurred."); }
     finally { setLoading(false); }
   };
 
@@ -257,11 +261,6 @@ function ChangePasswordForm() {
           className="w-full h-10 px-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
       </div>
       {error && <p className="text-sm text-red-500">{error}</p>}
-      {success && (
-        <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
-          <Check className="w-4 h-4" /> {t("account.passwordChanged")}
-        </div>
-      )}
       <Button type="submit" size="sm" disabled={loading}>
         <Lock className="w-4 h-4 mr-1.5" />
         {loading ? "..." : t("account.btnChangePassword")}
@@ -274,7 +273,6 @@ function DataBackup() {
   const { exportData, importData } = useAccount();
   const { t } = useLang();
   const fileRef = useRef<HTMLInputElement>(null);
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const handleExport = () => {
     const data = exportData();
@@ -286,6 +284,7 @@ function DataBackup() {
     a.download = `NorthPathAI_Backup_${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
+    toast.success("Backup downloaded!");
   };
 
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -296,14 +295,13 @@ function DataBackup() {
       try {
         const data = JSON.parse(reader.result as string) as ExportedData;
         const res = importData(data);
-        if (res.ok) setMessage({ type: "success", text: t("account.importSuccess") });
-        else setMessage({ type: "error", text: res.error ?? t("account.importError") });
+        if (res.ok) toast.success(t("account.importSuccess"));
+        else toast.error(res.error ?? t("account.importError"));
       } catch {
-        setMessage({ type: "error", text: t("account.importError") });
+        toast.error(t("account.importError"));
       }
     };
     reader.readAsText(file);
-    // Reset so same file can be re-imported
     if (fileRef.current) fileRef.current.value = "";
   };
 
@@ -319,10 +317,129 @@ function DataBackup() {
         </Button>
         <input ref={fileRef} type="file" accept=".json" className="hidden" onChange={handleImport} />
       </div>
-      {message && (
-        <p className={cn("text-sm", message.type === "success" ? "text-emerald-600 dark:text-emerald-400" : "text-red-500")}>
-          {message.text}
-        </p>
+    </div>
+  );
+}
+
+function ProfileForm() {
+  const { account, updateUser, updateUserEmail } = useAccount();
+  const { t } = useLang();
+  const [usernamePw, setUsernamePw] = useState("");
+  const [newUsername, setNewUsername] = useState(account?.username ?? "");
+  const [usernamePending, setUsernamePending] = useState(false);
+  const [emailPw, setEmailPw] = useState("");
+  const [newEmail, setNewEmail] = useState(account?.email ?? "");
+  const [emailPending, setEmailPending] = useState(false);
+
+  const handleUsernameSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!usernamePw) { toast.error("Please enter your current password."); return; }
+    if (!newUsername.trim() || newUsername.trim().length < 2) { toast.error("Username must be at least 2 characters."); return; }
+    setUsernamePending(true);
+    try {
+      const res = await updateUser(usernamePw, newUsername);
+      if (res.ok) { toast.success(t("account.usernameUpdated")); setUsernamePw(""); }
+      else toast.error(res.error ?? "Failed to update username.");
+    } catch { toast.error("An error occurred."); }
+    finally { setUsernamePending(false); }
+  };
+
+  const handleEmailSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!emailPw) { toast.error("Please enter your current password."); return; }
+    setEmailPending(true);
+    try {
+      const res = await updateUserEmail(emailPw, newEmail);
+      if (res.ok) { toast.success(t("account.emailUpdated")); setEmailPw(""); }
+      else toast.error(res.error ?? "Failed to update email.");
+    } catch { toast.error("An error occurred."); }
+    finally { setEmailPending(false); }
+  };
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      {/* Change Username */}
+      <form onSubmit={handleUsernameSubmit} className="space-y-3">
+        <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">
+          <AtSign className="w-3.5 h-3.5" /> {t("account.changeUsername")}
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium">{t("account.newUsername")}</label>
+          <input type="text" value={newUsername} onChange={e => setNewUsername(e.target.value)}
+            className="w-full h-10 px-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium">{t("account.currentPassword")}</label>
+          <input type="password" value={usernamePw} onChange={e => setUsernamePw(e.target.value)}
+            className="w-full h-10 px-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+        </div>
+        <Button type="submit" size="sm" disabled={usernamePending}>
+          <AtSign className="w-4 h-4 mr-1.5" />
+          {usernamePending ? "..." : t("account.btnUpdateUsername")}
+        </Button>
+      </form>
+
+      {/* Change Email */}
+      <form onSubmit={handleEmailSubmit} className="space-y-3">
+        <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">
+          <Mail className="w-3.5 h-3.5" /> {t("account.changeEmail")}
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium">{t("account.newEmail")}</label>
+          <input type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)}
+            className="w-full h-10 px-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium">{t("account.currentPassword")}</label>
+          <input type="password" value={emailPw} onChange={e => setEmailPw(e.target.value)}
+            className="w-full h-10 px-3 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+        </div>
+        <Button type="submit" size="sm" disabled={emailPending}>
+          <Mail className="w-4 h-4 mr-1.5" />
+          {emailPending ? "..." : t("account.btnUpdateEmail")}
+        </Button>
+      </form>
+    </div>
+  );
+}
+
+function DangerZone() {
+  const { deleteAcc } = useAccount();
+  const { t } = useLang();
+  const [confirm, setConfirm] = useState(false);
+  const [, setLocation] = useLocation();
+
+  const handleDelete = () => {
+    const res = deleteAcc();
+    if (res.ok) {
+      toast.success(t("account.accountDeleted"));
+      setLocation("/");
+    } else {
+      toast.error(res.error ?? "Failed to delete account.");
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <p className="text-xs text-muted-foreground">{t("account.dangerZoneDesc")}</p>
+      {!confirm ? (
+        <Button variant="outline" size="sm" onClick={() => setConfirm(true)}
+          className="border-red-400 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20">
+          <Trash2 className="w-4 h-4 mr-1.5" /> {t("account.btnDeleteAccount")}
+        </Button>
+      ) : (
+        <div className="rounded-xl border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/20 p-4 space-y-3">
+          <p className="text-sm text-red-700 dark:text-red-300 font-medium">{t("account.deleteConfirmText")}</p>
+          <div className="flex gap-2">
+            <Button size="sm" onClick={handleDelete}
+              className="bg-red-500 hover:bg-red-600 text-white border-0">
+              {t("account.btnConfirmDelete")}
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setConfirm(false)}>
+              {t("common.close")}
+            </Button>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -335,23 +452,26 @@ function SecurityQuestionForm() {
   const [secQ, setSecQ] = useState("");
   const [secA, setSecA] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const hasExisting = !!(account?.securityQuestion);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(""); setSuccess(false);
+    setError("");
     if (!password) { setError("Please enter your current password."); return; }
     if (!secQ) { setError("Please select a security question."); return; }
     if (!secA.trim()) { setError("Please provide an answer."); return; }
     setLoading(true);
     try {
       const res = await updateSecurityQ(password, secQ, secA);
-      if (res.ok) { setSuccess(true); setPassword(""); setSecA(""); }
-      else setError(res.error ?? "Failed to update.");
-    } catch { setError("An error occurred."); }
+      if (res.ok) {
+        toast.success(t("account.securityQuestionUpdated"));
+        setPassword(""); setSecA("");
+      } else {
+        toast.error(res.error ?? "Failed to update.");
+      }
+    } catch { toast.error("An error occurred."); }
     finally { setLoading(false); }
   };
 
@@ -397,11 +517,6 @@ function SecurityQuestionForm() {
       )}
 
       {error && <p className="text-sm text-red-500">{error}</p>}
-      {success && (
-        <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
-          <Check className="w-4 h-4" /> {t("account.securityQuestionUpdated")}
-        </div>
-      )}
       <Button type="submit" size="sm" disabled={loading}>
         <ShieldQuestion className="w-4 h-4 mr-1.5" />
         {loading ? "..." : t("account.btnSetSecurityQuestion")}
@@ -526,6 +641,16 @@ export default function Account() {
 
             {section === "settings" && (
               <>
+                {/* Profile Settings */}
+                <div className="flex items-center gap-2 mb-5">
+                  <UserCircle className="w-4 h-4 text-primary" />
+                  <h2 className="font-display font-bold text-base">{t("account.profileSettings")}</h2>
+                </div>
+                <ProfileForm />
+
+                <div className="border-t border-border my-8" />
+
+                {/* Change Password */}
                 <div className="flex items-center gap-2 mb-5">
                   <Lock className="w-4 h-4 text-primary" />
                   <h2 className="font-display font-bold text-base">{t("account.changePassword")}</h2>
@@ -534,6 +659,7 @@ export default function Account() {
 
                 <div className="border-t border-border my-8" />
 
+                {/* Security Question */}
                 <div className="flex items-center gap-2 mb-5">
                   <ShieldQuestion className="w-4 h-4 text-primary" />
                   <h2 className="font-display font-bold text-base">{t("account.securityQuestion")}</h2>
@@ -542,11 +668,21 @@ export default function Account() {
 
                 <div className="border-t border-border my-8" />
 
+                {/* Data Backup */}
                 <div className="flex items-center gap-2 mb-5">
                   <Download className="w-4 h-4 text-primary" />
                   <h2 className="font-display font-bold text-base">{t("account.dataBackup")}</h2>
                 </div>
                 <DataBackup />
+
+                <div className="border-t border-border my-8" />
+
+                {/* Danger Zone */}
+                <div className="flex items-center gap-2 mb-5">
+                  <Trash2 className="w-4 h-4 text-red-500" />
+                  <h2 className="font-display font-bold text-base text-red-500">{t("account.dangerZone")}</h2>
+                </div>
+                <DangerZone />
               </>
             )}
           </Card>

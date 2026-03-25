@@ -97,3 +97,27 @@ export function hasConsent(): boolean { return localStorage.getItem(STORAGE_KEY_
 export function clearData() {
   [STORAGE_KEY_ANSWERS, STORAGE_KEY_RESULTS, STORAGE_KEY_PROFILE, STORAGE_KEY_HIDDEN, STORAGE_KEY_WHYNOT].forEach(k => localStorage.removeItem(k));
 }
+
+// ─── Questionnaire Draft (auto-save progress) ─────────────────────────────────
+const STORAGE_KEY_DRAFT = "northpath_draft";
+
+export interface DraftData {
+  answers: Partial<QuestionnaireAnswers>;
+  step: number;
+  savedAt: string;
+}
+
+export function saveDraft(answers: Partial<QuestionnaireAnswers>, step: number) {
+  localStorage.setItem(STORAGE_KEY_DRAFT, JSON.stringify({ answers, step, savedAt: new Date().toISOString() }));
+}
+
+export function getDraft(): DraftData | null {
+  try {
+    const d = localStorage.getItem(STORAGE_KEY_DRAFT);
+    return d ? JSON.parse(d) : null;
+  } catch { return null; }
+}
+
+export function clearDraft() {
+  localStorage.removeItem(STORAGE_KEY_DRAFT);
+}

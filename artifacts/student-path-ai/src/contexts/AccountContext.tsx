@@ -5,6 +5,7 @@ import {
   saveResultToAccount, updateAccountGoals, updatePreferredCountries,
   changePassword, exportAccountData, importAccountData,
   getSecurityQuestionForEmail, resetPasswordWithSecurity, updateSecurityQuestion,
+  updateUsername, updateEmail, deleteAccount,
 } from "@/lib/accounts";
 
 interface AccountContextValue {
@@ -21,6 +22,9 @@ interface AccountContextValue {
   getSecurityQuestion: (email: string) => { found: boolean; question?: string };
   resetPassword: (email: string, securityAnswer: string, newPassword: string) => Promise<{ ok: boolean; error?: string }>;
   updateSecurityQ: (currentPassword: string, question: string, answer: string) => Promise<{ ok: boolean; error?: string }>;
+  updateUser: (currentPassword: string, newUsername: string) => Promise<{ ok: boolean; error?: string }>;
+  updateUserEmail: (currentPassword: string, newEmail: string) => Promise<{ ok: boolean; error?: string }>;
+  deleteAcc: () => { ok: boolean; error?: string };
   refresh: () => void;
 }
 
@@ -101,8 +105,29 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     return res;
   }, [account, refresh]);
 
+  const updateUser = useCallback(async (currentPassword: string, newUsername: string) => {
+    if (!account) return { ok: false, error: "Not logged in." };
+    const res = await updateUsername(account.id, currentPassword, newUsername);
+    if (res.ok) refresh();
+    return res;
+  }, [account, refresh]);
+
+  const updateUserEmail = useCallback(async (currentPassword: string, newEmail: string) => {
+    if (!account) return { ok: false, error: "Not logged in." };
+    const res = await updateEmail(account.id, currentPassword, newEmail);
+    if (res.ok) refresh();
+    return res;
+  }, [account, refresh]);
+
+  const deleteAcc = useCallback(() => {
+    if (!account) return { ok: false, error: "Not logged in." };
+    const res = deleteAccount(account.id);
+    if (res.ok) setAccount(null);
+    return res;
+  }, [account]);
+
   return (
-    <AccountContext.Provider value={{ account, login, register, logout, saveResult, setGoals, setPreferredCountries, changePass, exportData, importData, getSecurityQuestion, resetPassword, updateSecurityQ, refresh }}>
+    <AccountContext.Provider value={{ account, login, register, logout, saveResult, setGoals, setPreferredCountries, changePass, exportData, importData, getSecurityQuestion, resetPassword, updateSecurityQ, updateUser, updateUserEmail, deleteAcc, refresh }}>
       {children}
     </AccountContext.Provider>
   );

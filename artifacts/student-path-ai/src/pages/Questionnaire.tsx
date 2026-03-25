@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import {
   saveAnswers, saveResults, saveProfile, saveConsent, saveHiddenMatch, saveWhyNot,
+  saveDraft, getDraft, clearDraft,
   QuestionnaireAnswers,
 } from "@/lib/store";
 import { calculateResults, getProfileType } from "@/lib/matching";
@@ -275,13 +277,38 @@ export default function Questionnaire() {
   const stepKey = step.id as StepId;
   const isMulti = step.multi;
 
+  // On mount: check for a saved draft (less than 24h old) and offer to resume
+  useEffect(() => {
+    const draft = getDraft();
+    if (!draft) return;
+    const ageMs = Date.now() - new Date(draft.savedAt).getTime();
+    if (ageMs > 24 * 60 * 60 * 1000) { clearDraft(); return; }
+    toast("Resume your questionnaire?", {
+      description: "You have saved progress from earlier.",
+      action: {
+        label: "Resume",
+        onClick: () => {
+          setAnswers(draft.answers as QuestionnaireAnswers);
+          setCurrentStep(draft.step);
+          setScreen("quiz");
+        },
+      },
+      cancel: { label: "Start fresh", onClick: () => clearDraft() },
+      duration: 8000,
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const toggleOption = (option: string) => {
+    let updated: QuestionnaireAnswers;
     if (isMulti) {
       const current = answers[stepKey] as string[];
-      setAnswers({ ...answers, [stepKey]: current.includes(option) ? current.filter(o => o !== option) : [...current, option] });
+      updated = { ...answers, [stepKey]: current.includes(option) ? current.filter(o => o !== option) : [...current, option] };
     } else {
-      setAnswers({ ...answers, [stepKey]: option });
+      updated = { ...answers, [stepKey]: option };
     }
+    setAnswers(updated);
+    saveDraft(updated, currentStep);
   };
 
   const canProceed = () => {
@@ -290,12 +317,18 @@ export default function Questionnaire() {
   };
 
   const handleNext = () => {
-    if (currentStep < STEPS.length - 1) { setCurrentStep(p => p + 1); }
-    else { handleSubmit(); }
+    if (currentStep < STEPS.length - 1) {
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+      saveDraft(answers, nextStep);
+    } else {
+      handleSubmit();
+    }
   };
 
   const handleSubmit = () => {
     setScreen("processing");
+    clearDraft(); // Remove draft once quiz is completed
     setTimeout(() => {
       saveAnswers(answers);
       const { results, hiddenMatch, whyNot } = calculateResults(answers);
