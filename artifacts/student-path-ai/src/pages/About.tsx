@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
-import { Card } from "@/components/ui/Card";
+import { Card } from "@/components/ui/card";
 import { MessageSquare, Cpu, Map, Users } from "lucide-react";
 import { Link } from "wouter";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { useLang } from "@/contexts/LanguageContext";
 
 const DEVELOPERS = [

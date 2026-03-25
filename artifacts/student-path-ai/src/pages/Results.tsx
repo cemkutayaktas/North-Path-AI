@@ -8,8 +8,8 @@ import {
 import { calculateResults, getProfileType } from "@/lib/matching";
 import { generatePDF } from "@/lib/pdf";
 import { UNIVERSITIES_BY_COUNTRY } from "@/lib/universities";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Trophy, RefreshCw, BookMarked, CheckCircle2, Lightbulb,

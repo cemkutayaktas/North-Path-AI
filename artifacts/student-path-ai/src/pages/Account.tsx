@@ -4,8 +4,8 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useAccount } from "@/contexts/AccountContext";
 import { useLang } from "@/contexts/LanguageContext";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   UserCircle, LogOut, BookMarked, Target, Globe, ChevronRight,
   Star, Sparkles, Plus, X, CheckCircle2, Trophy,
