@@ -97,13 +97,20 @@ export function AccountProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    // Fallback: stop spinner after 5s even if Supabase is unreachable
+    const timeout = setTimeout(() => setLoading(false), 5000);
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      clearTimeout(timeout);
       if (session?.user) {
         loadAccount(session.user).finally(() => setLoading(false));
       } else {
         setLoading(false);
       }
+    }).catch(() => {
+      clearTimeout(timeout);
+      setLoading(false);
     });
 
     // Listen for auth state changes
