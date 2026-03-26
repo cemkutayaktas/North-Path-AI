@@ -11,11 +11,14 @@ import {
   Star, Sparkles, Plus, X, CheckCircle2, Trophy,
   Settings, Lock, Download, Upload, Check, Trash2, Mail, AtSign,
   CalendarDays, Clock, AlertTriangle, GraduationCap, Edit2,
+  Award, ExternalLink, Filter, Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { checkPassword } from "@/lib/accounts";
 import { saveResults, saveProfile, saveHiddenMatch, saveWhyNot, saveAnswers } from "@/lib/store";
 import type { ExportedData, ApplicationDeadline } from "@/contexts/AccountContext";
+import { SCHOLARSHIPS, getScholarshipsForProfile, TYPE_LABELS, ALL_SCHOLARSHIP_COUNTRIES } from "@/lib/scholarships";
+import type { Scholarship } from "@/lib/scholarships";
 
 const GOAL_SUGGESTIONS = [
   "Research at least 3 universities offering my top major",
@@ -680,7 +683,144 @@ function DeadlineTracker() {
   );
 }
 
-type Section = "results" | "goals" | "countries" | "deadlines" | "settings";
+// ─── Scholarship Finder ───────────────────────────────────────────────────────
+const TYPE_COLORS: Record<Scholarship["type"], string> = {
+  "full":       "bg-emerald-100 text-emerald-700 border-emerald-200",
+  "partial":    "bg-blue-100 text-blue-700 border-blue-200",
+  "living":     "bg-violet-100 text-violet-700 border-violet-200",
+  "merit":      "bg-amber-100 text-amber-700 border-amber-200",
+  "need-based": "bg-rose-100 text-rose-700 border-rose-200",
+};
+
+function ScholarshipFinder() {
+  const { account } = useAccount();
+  const preferredCountries = account?.preferredCountries ?? [];
+  const savedMajors = account?.savedResult?.results.map(r => r.major) ?? [];
+
+  const [search, setSearch] = useState("");
+  const [filterCountry, setFilterCountry] = useState<string>("all");
+  const [filterType, setFilterType] = useState<string>("all");
+  const [showPersonalised, setShowPersonalised] = useState(preferredCountries.length > 0 || savedMajors.length > 0);
+
+  const base = showPersonalised
+    ? getScholarshipsForProfile(preferredCountries, savedMajors)
+    : SCHOLARSHIPS;
+
+  const filtered = base.filter(s => {
+    const matchSearch = !search ||
+      s.name.toLowerCase().includes(search.toLowerCase()) ||
+      s.provider.toLowerCase().includes(search.toLowerCase()) ||
+      s.tags.some(t => t.toLowerCase().includes(search.toLowerCase()));
+    const matchCountry = filterCountry === "all" || s.countries.includes(filterCountry);
+    const matchType = filterType === "all" || s.type === filterType;
+    return matchSearch && matchCountry && matchType;
+  });
+
+  return (
+    <div className="space-y-4">
+      {/* Personalised toggle */}
+      {(preferredCountries.length > 0 || savedMajors.length > 0) && (
+        <div className="flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3">
+          <Award className="w-4 h-4 text-primary shrink-0" />
+          <p className="text-xs text-foreground flex-1">
+            <span className="font-semibold">Personalised view</span> — showing scholarships matching your saved countries & majors.
+          </p>
+          <button onClick={() => setShowPersonalised(v => !v)}
+            className="text-xs text-primary font-semibold hover:underline shrink-0">
+            {showPersonalised ? "Show all" : "Show matched"}
+          </button>
+        </div>
+      )}
+
+      {/* Filters */}
+      <div className="flex flex-wrap gap-2">
+        <div className="relative flex-1 min-w-[180px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+          <input value={search} onChange={e => setSearch(e.target.value)}
+            placeholder="Search scholarships…"
+            className="w-full h-9 pl-9 pr-3 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
+        </div>
+        <select value={filterCountry} onChange={e => setFilterCountry(e.target.value)}
+          className="h-9 px-3 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+          <option value="all">All countries</option>
+          {ALL_SCHOLARSHIP_COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <select value={filterType} onChange={e => setFilterType(e.target.value)}
+          className="h-9 px-3 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+          <option value="all">All types</option>
+          {Object.entries(TYPE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+        </select>
+      </div>
+
+      {/* Results count */}
+      <p className="text-xs text-muted-foreground">{filtered.length} scholarship{filtered.length !== 1 ? "s" : ""} found</p>
+
+      {/* Empty state */}
+      {filtered.length === 0 && (
+        <div className="text-center py-10 text-muted-foreground">
+          <Award className="w-10 h-10 mx-auto mb-3 opacity-30" />
+          <p className="text-sm">No scholarships match your filters.</p>
+          <button onClick={() => { setSearch(""); setFilterCountry("all"); setFilterType("all"); }}
+            className="text-xs text-primary hover:underline mt-2">Clear filters</button>
+        </div>
+      )}
+
+      {/* Scholarship cards */}
+      <div className="space-y-3">
+        {filtered.map(s => (
+          <motion.div key={s.id} layout
+            className="rounded-xl border border-border bg-card p-4 hover:border-primary/30 transition-colors">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                <Award className="w-4 h-4 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-start gap-2 mb-1">
+                  <p className="text-sm font-semibold leading-snug">{s.name}</p>
+                  <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0", TYPE_COLORS[s.type])}>
+                    {TYPE_LABELS[s.type]}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mb-2">{s.provider}</p>
+
+                {/* Amount highlight */}
+                <p className="text-sm font-bold text-primary mb-2">{s.amount}</p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground mb-3">
+                  <div><span className="font-medium text-foreground">Covers:</span> {s.coverage}</div>
+                  <div><span className="font-medium text-foreground">Deadline:</span> {s.deadline}</div>
+                  <div className="sm:col-span-2"><span className="font-medium text-foreground">Eligibility:</span> {s.eligibility}</div>
+                </div>
+
+                {/* Tags */}
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  {s.countries.map(c => (
+                    <span key={c} className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">{c}</span>
+                  ))}
+                  {s.tags.slice(0, 4).map(t => (
+                    <span key={t} className="text-[10px] px-2 py-0.5 rounded-full bg-muted/50 text-muted-foreground">{t}</span>
+                  ))}
+                </div>
+
+                <a href={s.link} target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline">
+                  Visit official page <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Footer note */}
+      <p className="text-[11px] text-muted-foreground text-center pt-2 border-t border-border/40">
+        Always verify deadlines and eligibility on the official scholarship website. Details may change annually.
+      </p>
+    </div>
+  );
+}
+
+type Section = "results" | "goals" | "countries" | "deadlines" | "scholarships" | "settings";
 
 export default function Account() {
   const { account, logout } = useAccount();
@@ -694,11 +834,12 @@ export default function Account() {
   }
 
   const NAV: { id: Section; label: string; icon: React.ElementType }[] = [
-    { id: "results",   label: t("account.navSavedResults"), icon: Star },
-    { id: "goals",     label: t("account.navGoals"),        icon: Target },
-    { id: "countries", label: t("account.navCountries"),    icon: Globe },
-    { id: "deadlines", label: "Deadlines",                  icon: CalendarDays },
-    { id: "settings",  label: t("account.navSettings"),     icon: Settings },
+    { id: "results",      label: t("account.navSavedResults"), icon: Star },
+    { id: "goals",        label: t("account.navGoals"),        icon: Target },
+    { id: "countries",    label: t("account.navCountries"),    icon: Globe },
+    { id: "deadlines",    label: "Deadlines",                  icon: CalendarDays },
+    { id: "scholarships", label: "Scholarships",               icon: Award },
+    { id: "settings",     label: t("account.navSettings"),     icon: Settings },
   ];
 
   const STATS = [
@@ -802,6 +943,16 @@ export default function Account() {
                   <h2 className="font-display font-bold text-base">Application Deadlines</h2>
                 </div>
                 <DeadlineTracker />
+              </>
+            )}
+
+            {section === "scholarships" && (
+              <>
+                <div className="flex items-center gap-2 mb-5">
+                  <Award className="w-4 h-4 text-primary" />
+                  <h2 className="font-display font-bold text-base">Scholarship Finder</h2>
+                </div>
+                <ScholarshipFinder />
               </>
             )}
 
