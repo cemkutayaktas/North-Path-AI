@@ -614,9 +614,17 @@ export default function Results() {
     }
     const r = getResults(); const p = getProfile();
     const h = getHiddenMatch(); const w = getWhyNot();
-    if (!r || r.length === 0) { setLocation("/questionnaire"); return; }
+    if (!r || r.length === 0) {
+      // Fallback: if logged in and has saved results, load from account
+      if (account?.savedResult) {
+        const { results: ar, profile: ap, hidden: ah, whyNot: aw } = account.savedResult;
+        setResults(ar); setProfile(ap); setHidden(ah); setWhyNot(aw);
+        return;
+      }
+      setLocation("/questionnaire"); return;
+    }
     setResults(r); setProfile(p); setHidden(h); setWhyNot(w);
-  }, [setLocation]);
+  }, [setLocation, account]);
 
   const handleShare = () => {
     const answers = getAnswers();

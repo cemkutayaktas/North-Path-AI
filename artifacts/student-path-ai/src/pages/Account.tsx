@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { checkPassword } from "@/lib/accounts";
+import { saveResults, saveProfile, saveHiddenMatch, saveWhyNot, saveAnswers } from "@/lib/store";
 import type { ExportedData } from "@/contexts/AccountContext";
 
 const GOAL_SUGGESTIONS = [
@@ -160,14 +161,24 @@ function SavedResultCard({ savedResult }: { savedResult: NonNullable<ReturnType<
     </div>
   );
 
-  const { results, profile, savedAt } = savedResult;
+  const { results, profile, hidden, whyNot, answers, savedAt } = savedResult;
   const date = new Date(savedAt).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" });
+
+  const handleViewResults = () => {
+    // Restore saved results to localStorage so the Results page can read them on any device
+    saveResults(results);
+    saveProfile(profile);
+    if (hidden) saveHiddenMatch(hidden);
+    if (whyNot) saveWhyNot(whyNot);
+    if (answers) saveAnswers(answers);
+    setLocation("/results");
+  };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>{t("account.savedOn")} {date}</span>
-        <button onClick={() => setLocation("/results")} className="flex items-center gap-1 text-primary font-semibold hover:underline">
+        <button onClick={handleViewResults} className="flex items-center gap-1 text-primary font-semibold hover:underline">
           {t("account.viewFullResults")} <ChevronRight className="w-3.5 h-3.5" />
         </button>
       </div>
