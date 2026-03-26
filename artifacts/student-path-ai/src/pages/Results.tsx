@@ -8,6 +8,7 @@ import {
 import { calculateResults, getProfileType } from "@/lib/matching";
 import { generatePDF } from "@/lib/pdf";
 import { UNIVERSITIES_BY_COUNTRY } from "@/lib/universities";
+import { getQSRank } from "@/lib/qsRankings";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -17,7 +18,7 @@ import {
   Map, TrendingUp, User, Globe, School, Sparkles,
   SplitSquareHorizontal, CalendarDays, Compass,
   ChevronDown, ChevronUp, XCircle, BadgeCheck, AlertCircle,
-  Share2, Check, FlaskConical, Route, Download, UserCircle, Save,
+  Share2, Check, FlaskConical, Route, Download, UserCircle, Save, Medal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLang } from "@/contexts/LanguageContext";
@@ -64,6 +65,24 @@ function ConfBadge({ level }: { level: MatchResult["confidence"] }) {
   return (
     <span className={cn("inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border", cfg.bg, cfg.text, cfg.border)}>
       <Icon className="w-3 h-3" />{label}
+    </span>
+  );
+}
+
+// ─── QS Badge ─────────────────────────────────────────────────────────────────
+function QSBadge({ universityName }: { universityName: string }) {
+  const rank = getQSRank(universityName);
+  if (!rank) return null;
+
+  const color = rank <= 10 ? "bg-amber-100 text-amber-700 border-amber-200"
+    : rank <= 50 ? "bg-violet-100 text-violet-700 border-violet-200"
+    : rank <= 100 ? "bg-blue-100 text-blue-700 border-blue-200"
+    : "bg-slate-100 text-slate-600 border-slate-200";
+
+  return (
+    <span className={`inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full border ${color} shrink-0`}>
+      <Medal className="w-2.5 h-2.5" />
+      #{rank}
     </span>
   );
 }
@@ -122,9 +141,10 @@ function CountryExplorer({ major, countries }: { major: string; countries: { nam
                 </div>
                 <ul className="divide-y divide-sky-100 dark:divide-sky-800/50">
                   {unis.map((u, i) => (
-                    <li key={i} className="flex items-center gap-3 px-4 py-3">
+                    <li key={i} className="flex items-center gap-3 px-4 py-3 flex-wrap">
                       <span className="w-5 h-5 rounded-full bg-sky-100 dark:bg-sky-900 text-sky-600 dark:text-sky-300 text-[10px] font-bold flex items-center justify-center shrink-0">{i + 1}</span>
-                      <span className="text-sm text-foreground">{u}</span>
+                      <span className="text-sm text-foreground flex-1">{u}</span>
+                      <QSBadge universityName={u} />
                     </li>
                   ))}
                 </ul>
@@ -306,11 +326,17 @@ function MajorCard({ result, rank, index, topScore }: { result: MatchResult; ran
               <div className="px-6 sm:px-8 py-5">
                 <SectionHead icon={School} label={t("results.sections.universities")} color="text-violet-600" />
                 <ul className="space-y-1.5">{result.universities.map((u, i) => (
-                  <li key={i} className="text-sm flex items-start gap-2">
-                    <GraduationCap className="w-4 h-4 text-violet-400 shrink-0 mt-0.5" />{u}
+                  <li key={i} className="text-sm flex items-center gap-2 flex-wrap">
+                    <GraduationCap className="w-4 h-4 text-violet-400 shrink-0" />
+                    <span className="flex-1">{u}</span>
+                    <QSBadge universityName={u} />
                   </li>
                 ))}</ul>
                 <p className="text-[10px] text-muted-foreground mt-3 italic">{t("results.sections.universitiesNote")}</p>
+                <p className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1">
+                  <Medal className="w-2.5 h-2.5" />
+                  {t("results.sections.qsNote")}
+                </p>
               </div>
             </div>
 
