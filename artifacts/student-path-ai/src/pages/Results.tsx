@@ -23,6 +23,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useLang } from "@/contexts/LanguageContext";
 import { useAccount } from "@/contexts/AccountContext";
+import { UniversityDrawer } from "@/components/UniversityDrawer";
 
 // ─── Color palettes ───────────────────────────────────────────────────────────
 const PROFILE_COLORS: Record<string, { bg: string; text: string; border: string; badge: string }> = {
@@ -88,7 +89,7 @@ function QSBadge({ universityName }: { universityName: string }) {
 }
 
 // ─── Country Explorer ─────────────────────────────────────────────────────────
-function CountryExplorer({ major, countries }: { major: string; countries: { name: string; flag: string }[] }) {
+function CountryExplorer({ major, countries, onUniversityClick }: { major: string; countries: { name: string; flag: string }[]; onUniversityClick?: (name: string) => void }) {
   const { t } = useLang();
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
@@ -143,7 +144,10 @@ function CountryExplorer({ major, countries }: { major: string; countries: { nam
                   {unis.map((u, i) => (
                     <li key={i} className="flex items-center gap-3 px-4 py-3 flex-wrap">
                       <span className="w-5 h-5 rounded-full bg-sky-100 dark:bg-sky-900 text-sky-600 dark:text-sky-300 text-[10px] font-bold flex items-center justify-center shrink-0">{i + 1}</span>
-                      <span className="text-sm text-foreground flex-1">{u}</span>
+                      <button
+                        onClick={() => onUniversityClick?.(u)}
+                        className="text-sm text-foreground flex-1 text-left hover:text-primary hover:underline transition-colors cursor-pointer"
+                      >{u}</button>
                       <QSBadge universityName={u} />
                     </li>
                   ))}
@@ -188,6 +192,7 @@ function MajorCard({ result, rank, index, topScore }: { result: MatchResult; ran
   const { t } = useLang();
   const [expanded, setExpanded] = useState(index === 0);
   const [pathwayOpen, setPathwayOpen] = useState(false);
+  const [selectedUniversity, setSelectedUniversity] = useState<string | null>(null);
   const pct = Math.round((result.score / (topScore || 1)) * 100);
 
   return (
@@ -328,7 +333,10 @@ function MajorCard({ result, rank, index, topScore }: { result: MatchResult; ran
                 <ul className="space-y-1.5">{result.universities.map((u, i) => (
                   <li key={i} className="text-sm flex items-center gap-2 flex-wrap">
                     <GraduationCap className="w-4 h-4 text-violet-400 shrink-0" />
-                    <span className="flex-1">{u}</span>
+                    <button
+                      onClick={() => setSelectedUniversity(u)}
+                      className="flex-1 text-left hover:text-primary hover:underline transition-colors cursor-pointer"
+                    >{u}</button>
                     <QSBadge universityName={u} />
                   </li>
                 ))}</ul>
@@ -341,7 +349,7 @@ function MajorCard({ result, rank, index, topScore }: { result: MatchResult; ran
             </div>
 
             {/* Country-Specific University Explorer */}
-            <CountryExplorer major={result.major} countries={result.countries} />
+            <CountryExplorer major={result.major} countries={result.countries} onUniversityClick={setSelectedUniversity} />
 
             {/* Alternative Route + Mini Project */}
             <div className="border-t border-border/40 grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border/40">
@@ -362,6 +370,7 @@ function MajorCard({ result, rank, index, topScore }: { result: MatchResult; ran
           </motion.div>
         )}
       </Card>
+      <UniversityDrawer universityName={selectedUniversity} onClose={() => setSelectedUniversity(null)} />
     </motion.div>
   );
 }
