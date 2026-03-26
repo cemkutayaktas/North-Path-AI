@@ -25,7 +25,7 @@ function addHeader(doc: jsPDF) {
   doc.setFontSize(9);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(255, 255, 255);
-  doc.text("NORTHPATH AI", MARGIN, 9);
+  doc.text("NORTHVOY", MARGIN, 9);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7);
   doc.text("Personalised Academic Guidance Report", PAGE_W - MARGIN, 9, { align: "right" });
@@ -102,7 +102,7 @@ export function generatePDF(
   doc.setFont("helvetica", "bold");
   doc.setFontSize(28);
   doc.setTextColor(255, 255, 255);
-  doc.text("NorthPath AI", PAGE_W / 2, 90, { align: "center" });
+  doc.text("NorthVoy", PAGE_W / 2, 90, { align: "center" });
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(13);
@@ -131,7 +131,7 @@ export function generatePDF(
   doc.setFontSize(8);
   doc.setTextColor(200, 220, 255);
   doc.text(`Generated: ${new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}`, PAGE_W / 2, PAGE_H - 20, { align: "center" });
-  doc.text("northpathai.com", PAGE_W / 2, PAGE_H - 15, { align: "center" });
+  doc.text("northvoy.com", PAGE_W / 2, PAGE_H - 15, { align: "center" });
 
   // ── Page 2+ : Matches ────────────────────────────────────────────────────────
   doc.addPage();
@@ -367,5 +367,5 @@ export function generatePDF(
     addFooter(doc, p, totalPages);
   }
 
-  doc.save("NorthPathAI_Report.pdf");
+  doc.save("NorthVoy_Report.pdf");
 }

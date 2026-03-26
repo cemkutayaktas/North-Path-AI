@@ -55,7 +55,7 @@ export function Navbar() {
               <Compass className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
             <span className="font-display font-bold text-lg sm:text-xl tracking-tight text-foreground group-hover:text-primary transition-colors">
-              NorthPath <span className="text-primary">AI</span>
+              NorthVoy
             </span>
           </Link>
 

@@ -17,14 +17,14 @@ const LanguageContext = createContext<LanguageContextValue>({
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>(() => {
-    const saved = localStorage.getItem("northpath_lang");
+    const saved = localStorage.getItem("northvoy_lang");
     if (saved === "en" || saved === "tr" || saved === "de") return saved;
     return "en";
   });
 
   function setLang(l: Lang) {
     setLangState(l);
-    localStorage.setItem("northpath_lang", l);
+    localStorage.setItem("northvoy_lang", l);
   }
 
   function t(path: string): string {

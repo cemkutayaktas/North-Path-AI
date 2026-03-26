@@ -295,7 +295,7 @@ export default function Auth() {
             <Compass className="w-6 h-6 text-white" />
           </div>
           <div>
-            <p className="font-display font-bold text-lg leading-none">NorthPath <span className="text-primary">AI</span></p>
+            <p className="font-display font-bold text-lg leading-none">NorthVoy</p>
             <p className="text-xs text-muted-foreground">{t("auth.academicPlatform")}</p>
           </div>
         </div>

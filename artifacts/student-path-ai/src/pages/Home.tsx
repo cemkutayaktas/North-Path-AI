@@ -446,7 +446,7 @@ export default function Home() {
       ═══════════════════════════════════════════════════════════════════════ */}
       <footer className="border-t border-border/50 bg-card/30 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <span>&copy; {new Date().getFullYear()} NorthPath AI. {t("home.footerRights")}</span>
+          <span>&copy; {new Date().getFullYear()} NorthVoy. {t("home.footerRights")}</span>
           <span>{t("home.footerDisclaimer")}</span>
         </div>
       </footer>

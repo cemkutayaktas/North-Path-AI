@@ -101,7 +101,7 @@ export default function ResetPassword() {
             <Compass className="w-5 h-5 text-white" />
           </div>
           <div>
-            <p className="font-display font-bold text-lg leading-tight">NorthPath AI</p>
+            <p className="font-display font-bold text-lg leading-tight">NorthVoy</p>
             <p className="text-xs text-muted-foreground">Set New Password</p>
           </div>
         </div>
