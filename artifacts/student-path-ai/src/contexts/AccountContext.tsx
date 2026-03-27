@@ -129,12 +129,17 @@ export function AccountProvider({ children }: { children: ReactNode }) {
 
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        await loadAccount(session.user);
-      } else {
-        setAccount(null);
+      try {
+        if (session?.user) {
+          await loadAccount(session.user);
+        } else {
+          setAccount(null);
+        }
+      } catch {
+        // network error during account load — still stop spinner
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -147,13 +152,23 @@ export function AccountProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, password: string) => {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-    if (error) {
+    // Safety: if onAuthStateChange never fires (e.g. network blocked), stop spinner after 8s
+    const safetyTimer = setTimeout(() => setLoading(false), 8000);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      if (error) {
+        clearTimeout(safetyTimer);
+        setLoading(false);
+        return { ok: false, error: error.message };
+      }
+      // loading stays true — onAuthStateChange will call setLoading(false) after account loads
+      // safetyTimer clears it as a fallback after 8s
+      return { ok: true };
+    } catch {
+      clearTimeout(safetyTimer);
       setLoading(false);
-      return { ok: false, error: error.message };
+      return { ok: false, error: "Network error. Please check your connection and try again." };
     }
-    // loading stays true — onAuthStateChange will call setLoading(false) after account loads
-    return { ok: true };
   }, []);
 
   const register = useCallback(async (username: string, email: string, password: string) => {
