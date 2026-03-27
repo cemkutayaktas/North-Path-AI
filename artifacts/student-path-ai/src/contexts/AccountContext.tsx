@@ -153,13 +153,18 @@ export function AccountProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, password: string) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      const timeout = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("Connection timed out. Please check your internet and try again.")), 12000)
+      );
+      const { data, error } = await Promise.race([
+        supabase.auth.signInWithPassword({ email: email.trim(), password }),
+        timeout,
+      ]);
       if (error) return { ok: false, error: error.message };
-      // Load account immediately so Auth.tsx can redirect as soon as login() returns
       if (data.user) await loadAccount(data.user);
       return { ok: true };
-    } catch {
-      return { ok: false, error: "Network error. Please check your connection and try again." };
+    } catch (e) {
+      return { ok: false, error: e instanceof Error ? e.message : "Network error. Please check your connection." };
     }
   }, [loadAccount]);
 
