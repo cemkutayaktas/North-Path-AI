@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLang } from "@/contexts/LanguageContext";
+import { tContent } from "@/lib/i18n";
 import { useAccount } from "@/contexts/AccountContext";
 import { UniversityDrawer } from "@/components/UniversityDrawer";
 
@@ -166,7 +167,7 @@ function CountryExplorer({ major, countries, onUniversityClick }: { major: strin
 
 // ─── Profile Banner ───────────────────────────────────────────────────────────
 function ProfileBanner({ profile }: { profile: ProfileType }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const c = PROFILE_COLORS[profile.color] ?? PROFILE_COLORS.indigo;
   return (
     <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
@@ -179,8 +180,8 @@ function ProfileBanner({ profile }: { profile: ProfileType }) {
           <div className={cn("inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest mb-1 px-2.5 py-1 rounded-full", c.badge)}>
             <User className="w-3 h-3" />{t("results.sections.yourStudentProfile")}
           </div>
-          <h2 className={cn("text-2xl sm:text-3xl font-display font-extrabold", c.text)}>{profile.label}</h2>
-          <p className="text-sm text-muted-foreground mt-1 max-w-xl">{profile.tagline}</p>
+          <h2 className={cn("text-2xl sm:text-3xl font-display font-extrabold", c.text)}>{tContent(lang, "profileTypes", profile.label)}</h2>
+          <p className="text-sm text-muted-foreground mt-1 max-w-xl">{tContent(lang, "profileTaglines", profile.tagline)}</p>
         </div>
       </div>
     </motion.div>
@@ -189,7 +190,7 @@ function ProfileBanner({ profile }: { profile: ProfileType }) {
 
 // ─── Tab 1: My Matches ────────────────────────────────────────────────────────
 function MajorCard({ result, rank, index, topScore }: { result: MatchResult; rank: typeof RANK_CONFIG[0]; index: number; topScore: number }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [expanded, setExpanded] = useState(index === 0);
   const [pathwayOpen, setPathwayOpen] = useState(false);
   const [selectedUniversity, setSelectedUniversity] = useState<string | null>(null);
@@ -213,7 +214,7 @@ function MajorCard({ result, rank, index, topScore }: { result: MatchResult; ran
               <Briefcase className={cn("w-5 h-5", index === 0 ? "text-primary" : "text-muted-foreground")} />
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="text-lg sm:text-xl font-display font-bold leading-tight">{result.major}</h3>
+              <h3 className="text-lg sm:text-xl font-display font-bold leading-tight">{tContent(lang, "majors", result.major)}</h3>
               <div className="flex flex-wrap items-center gap-2 mt-1.5">
                 <ConfBadge level={result.confidence} />
                 <span className={cn("text-[10px] font-semibold", result.studyCostColor)}>
@@ -386,7 +387,7 @@ const COMPARE_ROW_KEYS = [
 ];
 
 function CompareTab({ results }: { results: MatchResult[] }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const rows = COMPARE_ROW_KEYS.map(r => ({ ...r, label: t(r.labelKey) }));
   return (
     <div>
@@ -403,7 +404,7 @@ function CompareTab({ results }: { results: MatchResult[] }) {
                 <th key={i} className="p-3 text-center text-sm">
                   <div className={cn("inline-flex flex-col items-center gap-1 px-3 py-2 rounded-xl border-2 w-full",
                     i === 0 ? "border-primary/40 bg-primary/5" : "border-border bg-muted/30")}>
-                    <span className="font-bold text-xs leading-tight text-center">{r.major}</span>
+                    <span className="font-bold text-xs leading-tight text-center">{tContent(lang, "majors", r.major)}</span>
                     <ConfBadge level={r.confidence} />
                   </div>
                 </th>
@@ -462,7 +463,7 @@ function CompareTab({ results }: { results: MatchResult[] }) {
 
 // ─── Tab 3: 12-Month Plan ─────────────────────────────────────────────────────
 function TwelveMonthTab({ result }: { result: MatchResult }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const plan = result.twelveMonthPlan;
   if (!plan) return null;
   const quarters = [
@@ -477,7 +478,7 @@ function TwelveMonthTab({ result }: { result: MatchResult }) {
       <div className="text-center mb-6">
         <h3 className="text-xl font-display font-bold">{t("results.sections.planNext12Months")}</h3>
         <p className="text-sm text-muted-foreground mt-1">
-          {t("results.sections.planRoadmapPrefix")} <span className="font-semibold text-primary">{result.major}</span>.
+          {t("results.sections.planRoadmapPrefix")} <span className="font-semibold text-primary">{tContent(lang, "majors", result.major)}</span>.
         </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -506,7 +507,7 @@ function TwelveMonthTab({ result }: { result: MatchResult }) {
 
 // ─── Tab 4: Explore More ──────────────────────────────────────────────────────
 function ExploreTab({ hidden, whyNot }: { hidden: HiddenMatch; whyNot: WhyNotEntry[] }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   return (
     <div className="space-y-10">
       {/* Hidden Match */}
@@ -526,15 +527,15 @@ function ExploreTab({ hidden, whyNot }: { hidden: HiddenMatch; whyNot: WhyNotEnt
             <div className="flex items-center gap-3">
               <span className="text-3xl">{hidden.icon}</span>
               <div>
-                <div className="text-[10px] font-bold uppercase tracking-widest text-violet-600 mb-0.5">{hidden.tag}</div>
-                <h4 className="text-xl font-display font-bold">{hidden.major}</h4>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-violet-600 mb-0.5">{tContent(lang, "hiddenTags", hidden.tag)}</div>
+                <h4 className="text-xl font-display font-bold">{tContent(lang, "majors", hidden.major)}</h4>
               </div>
             </div>
           </div>
           <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <SectionHead icon={Lightbulb} label={t("results.sections.whyMightSurprise")} color="text-violet-600" />
-              <p className="text-sm text-foreground/80 leading-relaxed">{hidden.reason}</p>
+              <p className="text-sm text-foreground/80 leading-relaxed">{tContent(lang, "hiddenReasons", hidden.major)}</p>
             </div>
             <div>
               <SectionHead icon={Zap} label={t("results.sections.keySkillsField")} color="text-violet-600" />
@@ -569,11 +570,11 @@ function ExploreTab({ hidden, whyNot }: { hidden: HiddenMatch; whyNot: WhyNotEnt
                   <AlertCircle className="w-4 h-4 text-gray-400" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold text-sm mb-1">{entry.major}</h4>
-                  <p className="text-sm text-muted-foreground mb-2 leading-relaxed">{entry.reason}</p>
+                  <h4 className="font-semibold text-sm mb-1">{tContent(lang, "majors", entry.major)}</h4>
+                  <p className="text-sm text-muted-foreground mb-2 leading-relaxed">{tContent(lang, "whyNotReasons", entry.reason)}</p>
                   <div className="flex items-start gap-1.5 text-xs text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg px-3 py-2">
                     <Lightbulb className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-                    <span>{entry.tip}</span>
+                    <span>{tContent(lang, "whyNotTips", entry.major)}</span>
                   </div>
                 </div>
               </div>
@@ -588,7 +589,7 @@ function ExploreTab({ hidden, whyNot }: { hidden: HiddenMatch; whyNot: WhyNotEnt
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function Results() {
   const [, setLocation] = useLocation();
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const { account, saveResult } = useAccount();
   const [results, setResults] = useState<MatchResult[] | null>(null);
   const [profile, setProfile] = useState<ProfileType | null>(null);
@@ -726,7 +727,7 @@ export default function Results() {
                   </span>
                   <span className="text-2xl font-display font-extrabold">{pct}%</span>
                 </div>
-                <h4 className="font-display font-bold text-sm mb-3 leading-tight">{r.major}</h4>
+                <h4 className="font-display font-bold text-sm mb-3 leading-tight">{tContent(lang, "majors", r.major)}</h4>
                 <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
