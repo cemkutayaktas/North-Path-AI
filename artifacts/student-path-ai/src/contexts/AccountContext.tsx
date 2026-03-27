@@ -153,16 +153,26 @@ export function AccountProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, password: string) => {
     try {
-      const timeout = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("Connection timed out. Please check your internet and try again.")), 12000)
-      );
-      const { data, error } = await Promise.race([
-        supabase.auth.signInWithPassword({ email: email.trim(), password }),
-        timeout,
+      // Wrap the ENTIRE login flow (auth + account load) in a single timeout
+      // so a hanging loadAccount() can't freeze the button indefinitely.
+      const result = await Promise.race([
+        (async () => {
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email: email.trim(),
+            password,
+          });
+          if (error) return { ok: false as const, error: error.message };
+          if (data.user) await loadAccount(data.user);
+          return { ok: true as const };
+        })(),
+        new Promise<never>((_, reject) =>
+          setTimeout(
+            () => reject(new Error("Connection timed out. Please check your internet and try again.")),
+            15000,
+          )
+        ),
       ]);
-      if (error) return { ok: false, error: error.message };
-      if (data.user) await loadAccount(data.user);
-      return { ok: true };
+      return result;
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : "Network error. Please check your connection." };
     }
