@@ -151,22 +151,11 @@ export function AccountProvider({ children }: { children: ReactNode }) {
   }, [loadAccount]);
 
   const login = useCallback(async (email: string, password: string) => {
-    setLoading(true);
-    // Safety: if onAuthStateChange never fires (e.g. network blocked), stop spinner after 8s
-    const safetyTimer = setTimeout(() => setLoading(false), 8000);
     try {
       const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-      if (error) {
-        clearTimeout(safetyTimer);
-        setLoading(false);
-        return { ok: false, error: error.message };
-      }
-      // loading stays true — onAuthStateChange will call setLoading(false) after account loads
-      // safetyTimer clears it as a fallback after 8s
+      if (error) return { ok: false, error: error.message };
       return { ok: true };
     } catch {
-      clearTimeout(safetyTimer);
-      setLoading(false);
       return { ok: false, error: "Network error. Please check your connection and try again." };
     }
   }, []);

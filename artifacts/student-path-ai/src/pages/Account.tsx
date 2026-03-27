@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -828,7 +828,11 @@ export default function Account() {
   const [, setLocation] = useLocation();
   const [section, setSection] = useState<Section>("results");
 
-  if (loading) {
+  useEffect(() => {
+    if (!loading && !account) setLocation("/auth");
+  }, [loading, account, setLocation]);
+
+  if (loading || !account) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-3 text-muted-foreground">
@@ -837,11 +841,6 @@ export default function Account() {
         </div>
       </div>
     );
-  }
-
-  if (!account) {
-    setLocation("/auth");
-    return null;
   }
 
   const NAV: { id: Section; label: string; icon: React.ElementType }[] = [

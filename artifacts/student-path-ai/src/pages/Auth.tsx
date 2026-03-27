@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { useAccount } from "@/contexts/AccountContext";
@@ -48,13 +48,21 @@ function Field({
 }
 
 function LoginForm({ onForgot }: { onForgot: () => void }) {
-  const { login } = useAccount();
+  const { login, account } = useAccount();
   const { t } = useLang();
   const [, setLocation] = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Redirect to account page once account is loaded after login
+  useEffect(() => {
+    if (loading && account) {
+      setLoading(false);
+      setLocation("/account");
+    }
+  }, [account, loading, setLocation]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,11 +71,14 @@ function LoginForm({ onForgot }: { onForgot: () => void }) {
     setLoading(true);
     try {
       const res = await login(email, password);
-      if (res.ok) setLocation("/account");
-      else setError(res.error ?? t("auth.errorLoginFailed"));
+      if (!res.ok) {
+        setError(res.error ?? t("auth.errorLoginFailed"));
+        setLoading(false);
+      }
+      // On success, don't redirect here — the useEffect above will redirect
+      // once onAuthStateChange fires and sets account
     } catch {
       setError(t("auth.errorLoginFailed"));
-    } finally {
       setLoading(false);
     }
   };
@@ -271,10 +282,9 @@ export default function Auth() {
   const { account } = useAccount();
   const { t } = useLang();
 
-  if (account) {
-    setLocation("/account");
-    return null;
-  }
+  useEffect(() => {
+    if (account) setLocation("/account");
+  }, [account, setLocation]);
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-4 flex items-center justify-center relative overflow-hidden">
