@@ -377,85 +377,134 @@ function MajorCard({ result, rank, index, topScore }: { result: MatchResult; ran
 }
 
 // ─── Tab 2: Compare ───────────────────────────────────────────────────────────
-const COMPARE_ROW_KEYS = [
-  { labelKey: "results.sections.compareRowConfidence", key: "confidence" as const },
-  { labelKey: "results.sections.compareRowStudyCost",  key: "studyCostLabel" as const },
-  { labelKey: "results.sections.compareRowCareers",    key: "careers" as const },
-  { labelKey: "results.sections.compareRowSkills",     key: "skills" as const },
-  { labelKey: "results.sections.compareRowCountries",  key: "countries" as const },
-  { labelKey: "results.sections.compareRowPathways",   key: "pathways" as const },
-];
+const COMPARE_SCHEMES = [
+  {
+    border:    "border-blue-400/60",
+    headerBg:  "bg-gradient-to-br from-blue-600 to-indigo-600",
+    badgeBg:   "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
+    bullet:    "bg-blue-400",
+    rankBg:    "bg-white/20 text-white",
+  },
+  {
+    border:    "border-purple-400/60",
+    headerBg:  "bg-gradient-to-br from-purple-600 to-violet-600",
+    badgeBg:   "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300",
+    bullet:    "bg-purple-400",
+    rankBg:    "bg-white/20 text-white",
+  },
+  {
+    border:    "border-amber-400/60",
+    headerBg:  "bg-gradient-to-br from-amber-500 to-orange-500",
+    badgeBg:   "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
+    bullet:    "bg-amber-400",
+    rankBg:    "bg-white/20 text-white",
+  },
+] as const;
 
 function CompareTab({ results }: { results: MatchResult[] }) {
   const { t, lang } = useLang();
-  const rows = COMPARE_ROW_KEYS.map(r => ({ ...r, label: t(r.labelKey) }));
+  const getPct = (r: MatchResult) => parseInt(r.explanation) || 0;
+
   return (
     <div>
       <div className="text-center mb-6">
         <h3 className="text-xl font-display font-bold">{t("results.sections.sideByeSideComparison")}</h3>
         <p className="text-sm text-muted-foreground mt-1">{t("results.sections.topMatchesComparedText")}</p>
       </div>
-      <div className="overflow-x-auto -mx-1">
-        <table className="w-full border-collapse min-w-[560px]">
-          <thead>
-            <tr>
-              <th className="text-left p-3 text-sm font-semibold text-muted-foreground w-32">{t("results.sections.dimensionLabel")}</th>
-              {results.map((r, i) => (
-                <th key={i} className="p-3 text-center text-sm">
-                  <div className={cn("inline-flex flex-col items-center gap-1 px-3 py-2 rounded-xl border-2 w-full",
-                    i === 0 ? "border-primary/40 bg-primary/5" : "border-border bg-muted/30")}>
-                    <span className="font-bold text-xs leading-tight text-center">{tContent(lang, "majors", r.major)}</span>
-                    <ConfBadge level={r.confidence} />
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {results.map((r, i) => {
+          const s = COMPARE_SCHEMES[i];
+          const pct = getPct(r);
+          return (
+            <div key={i} className={cn("rounded-2xl border-2 overflow-hidden flex flex-col", s.border)}>
+              {/* Coloured header */}
+              <div className={cn("p-4 text-white", s.headerBg)}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className={cn("text-xs font-bold px-2 py-0.5 rounded-full", s.rankBg)}>#{i + 1}</span>
+                  <ConfBadge level={r.confidence} />
+                </div>
+                <h4 className="font-bold text-sm leading-tight mb-3">{tContent(lang, "majors", r.major)}</h4>
+                {/* Match % bar */}
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] text-white/80">Profile Match</span>
+                    <span className="text-sm font-bold">{pct}%</span>
                   </div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, ri) => (
-              <tr key={ri} className={cn("border-t border-border/50", ri % 2 === 0 ? "bg-muted/10" : "bg-white dark:bg-card")}>
-                <td className="p-3 text-xs font-semibold text-muted-foreground align-top">{row.label}</td>
-                {results.map((r, ci) => (
-                  <td key={ci} className={cn("p-3 text-center align-top", ci === 0 && "bg-primary/3")}>
-                    {row.key === "confidence" && <ConfBadge level={r.confidence} />}
-                    {row.key === "studyCostLabel" && (
-                      <span className={cn("text-xs font-semibold", r.studyCostColor)}>{r.studyCostLabel}</span>
-                    )}
-                    {row.key === "careers" && (
-                      <div className="flex flex-wrap gap-1 justify-center">
-                        {r.careers.slice(0, 3).map((c, j) => (
-                          <span key={j} className="text-[10px] bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800 px-2 py-0.5 rounded-full">{c}</span>
-                        ))}
-                      </div>
-                    )}
-                    {row.key === "skills" && (
-                      <ul className="text-xs text-left space-y-1">
-                        {r.skills.slice(0, 3).map((s, j) => (
-                          <li key={j} className="flex items-start gap-1"><span className="w-1 h-1 rounded-full bg-indigo-400 mt-1.5 shrink-0" />{s}</li>
-                        ))}
-                      </ul>
-                    )}
-                    {row.key === "countries" && (
-                      <div className="flex flex-wrap gap-1 justify-center">
-                        {r.countries.slice(0, 3).map((c, j) => (
-                          <span key={j} className="text-[10px]">{c.flag} {c.name.split(" ")[c.name.split(" ").length - 1]}</span>
-                        ))}
-                      </div>
-                    )}
-                    {row.key === "pathways" && (
-                      <ul className="text-xs text-left space-y-1">
-                        {r.pathways.map((p, j) => (
-                          <li key={j} className="flex items-start gap-1"><span className="w-1 h-1 rounded-full bg-primary mt-1.5 shrink-0" />{p.name}</li>
-                        ))}
-                      </ul>
-                    )}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  <div className="h-1.5 rounded-full bg-white/20 overflow-hidden">
+                    <div className="h-full rounded-full bg-white/80" style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Body */}
+              <div className="p-4 space-y-4 bg-card flex-1">
+                {/* Why it fits */}
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">Why it fits</p>
+                  <ul className="space-y-1">
+                    {r.whyItMatches.slice(0, 3).map((w, j) => (
+                      <li key={j} className="flex items-start gap-1.5 text-xs">
+                        <span className={cn("w-1.5 h-1.5 rounded-full mt-1 shrink-0", s.bullet)} />
+                        {w}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Key skills */}
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">Key Skills</p>
+                  <div className="flex flex-wrap gap-1">
+                    {r.skills.slice(0, 4).map((sk, j) => (
+                      <span key={j} className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium", s.badgeBg)}>{sk}</span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Careers */}
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">Careers</p>
+                  <div className="flex flex-wrap gap-1">
+                    {r.careers.slice(0, 3).map((c, j) => (
+                      <span key={j} className="text-[10px] bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800 px-2 py-0.5 rounded-full">{c}</span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Study cost + countries */}
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">Study Cost</p>
+                    <span className={cn("text-xs font-semibold", r.studyCostColor)}>{r.studyCostLabel}</span>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">Top Countries</p>
+                    <div className="flex gap-0.5 justify-end">
+                      {r.countries.slice(0, 3).map((c, j) => (
+                        <span key={j} title={c.name} className="text-base leading-none">{c.flag}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Top universities */}
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">Top Universities</p>
+                  <ul className="space-y-0.5">
+                    {r.universities.slice(0, 3).map((u, j) => (
+                      <li key={j} className="flex items-start gap-1 text-xs text-muted-foreground">
+                        <span className="text-[10px] mt-0.5 shrink-0">🎓</span>{u}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
+
       <p className="text-xs text-muted-foreground text-center mt-4 italic">{t("results.sections.allGuidanceOnly")}</p>
     </div>
   );

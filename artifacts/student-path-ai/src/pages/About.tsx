@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
-import { MessageSquare, Cpu, Map, Users } from "lucide-react";
+import { MessageSquare, Cpu, Map, Users, Mail } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/contexts/LanguageContext";
@@ -139,6 +139,24 @@ export default function About() {
           <p className="text-center text-sm text-muted-foreground mt-8">
             {t("about.footerNote")}
           </p>
+        </div>
+
+        {/* Contact */}
+        <div className="mt-16 rounded-2xl border border-border bg-muted/30 p-6 sm:p-8 text-center">
+          <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <Mail className="w-6 h-6 text-primary" />
+          </div>
+          <h3 className="text-xl font-bold mb-2">Get in Touch</h3>
+          <p className="text-muted-foreground text-sm mb-4 max-w-md mx-auto">
+            Have questions, feedback, or partnership inquiries? We'd love to hear from you.
+          </p>
+          <a
+            href="mailto:northvoy@gmail.com"
+            className="inline-flex items-center gap-2 text-primary font-semibold hover:underline text-sm"
+          >
+            <Mail className="w-4 h-4" />
+            northvoy@gmail.com
+          </a>
         </div>
 
       </div>
