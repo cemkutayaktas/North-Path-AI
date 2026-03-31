@@ -40,6 +40,7 @@ export function Navbar() {
     { href: "/", label: t("nav.home") },
     { href: "/questionnaire", label: t("nav.quiz") },
     { href: "/compare", label: "Compare" },
+    { href: "/turkiye", label: "🇹🇷 Türkiye" },
     { href: "/about", label: t("nav.about") },
   ];
 

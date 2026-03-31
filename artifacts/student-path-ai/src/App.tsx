@@ -17,6 +17,7 @@ import Account from "@/pages/Account";
 import ResetPassword from "@/pages/ResetPassword";
 import Compare from "@/pages/Compare";
 import Tracker from "@/pages/Tracker";
+import Turkiye from "@/pages/Turkiye";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -46,6 +47,7 @@ function Router() {
           <Route path="/reset-password" component={ResetPassword} />
           <Route path="/compare" component={Compare} />
           <Route path="/tracker" component={Tracker} />
+          <Route path="/turkiye" component={Turkiye} />
           <Route component={NotFound} />
         </Switch>
       </main>
