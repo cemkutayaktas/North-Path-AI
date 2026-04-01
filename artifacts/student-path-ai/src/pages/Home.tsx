@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
   Sparkles,
@@ -32,6 +33,7 @@ const fadeUp = {
 
 export default function Home() {
   const { t } = useLang();
+  const [ctaHovered, setCtaHovered] = useState(false);
 
   const stats = [
     { value: "20+", label: t("home.statMajors"), icon: GraduationCap },
@@ -91,14 +93,10 @@ export default function Home() {
           HERO SECTION
       ═══════════════════════════════════════════════════════════════════════ */}
       <section className="relative overflow-hidden">
-        <div className="absolute top-0 right-0 -z-10 w-[800px] h-[800px] opacity-30 pointer-events-none translate-x-1/3 -translate-y-1/4">
-          <img
-            src={`${import.meta.env.BASE_URL}images/hero-bg.png`}
-            alt=""
-            className="w-full h-full object-contain"
-          />
-        </div>
-        <div className="absolute top-40 left-0 w-72 h-72 bg-primary/10 rounded-full blur-3xl -z-10 -translate-x-1/2" />
+        {/* Aurora blobs */}
+        <div className="absolute top-0 left-1/4 -z-10 w-[500px] h-[500px] rounded-full bg-blue-500/10 blur-[120px] animate-[pulse_7s_ease-in-out_infinite]" />
+        <div className="absolute top-20 right-1/4 -z-10 w-[400px] h-[400px] rounded-full bg-violet-500/10 blur-[100px] animate-[pulse_9s_ease-in-out_infinite_1.5s]" />
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-indigo-400/10 rounded-full blur-3xl -z-10 -translate-x-1/2 animate-[pulse_11s_ease-in-out_infinite_3s]" />
         <div className="absolute bottom-0 right-20 w-96 h-96 bg-secondary/10 rounded-full blur-3xl -z-10 translate-y-1/2" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-10 sm:py-16 lg:py-24">
@@ -124,12 +122,49 @@ export default function Home() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/questionnaire">
-                  <Button size="lg" className="w-full sm:w-auto group">
-                    {t("home.cta")}
-                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </Link>
+                {/* CTA with floating preview card */}
+                <div
+                  className="relative"
+                  onMouseEnter={() => setCtaHovered(true)}
+                  onMouseLeave={() => setCtaHovered(false)}
+                >
+                  <AnimatePresence>
+                    {ctaHovered && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 6, scale: 0.97 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 6, scale: 0.97 }}
+                        transition={{ duration: 0.18 }}
+                        className="absolute bottom-full left-0 mb-3 w-60 bg-card border border-border rounded-2xl shadow-xl shadow-black/10 p-4 z-50 pointer-events-none"
+                      >
+                        <p className="text-xs font-semibold text-foreground mb-2.5">What you'll get:</p>
+                        <ul className="space-y-2">
+                          {[
+                            "Matched to 20+ majors",
+                            "Career path explorer",
+                            "Universities in 60+ countries",
+                            "Downloadable PDF report",
+                          ].map((item) => (
+                            <li key={item} className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="mt-3 pt-2.5 border-t border-border text-[10px] text-muted-foreground flex items-center gap-1.5">
+                          <Clock className="w-3 h-3" /> Takes about 5 minutes · Free
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                  <Link href="/questionnaire">
+                    <Button size="lg" className="w-full sm:w-auto group">
+                      {t("home.cta")}
+                      <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </Link>
+                </div>
+
                 <Link href="/about">
                   <Button variant="secondary" size="lg" className="w-full sm:w-auto">
                     {t("home.howItWorks")}
@@ -153,28 +188,94 @@ export default function Home() {
               </div>
             </motion.div>
 
-            {/* Right side visual */}
+            {/* Right side — Results preview mockup */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              initial={{ opacity: 0, y: 30, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.25 }}
               className="hidden lg:block relative"
             >
-              <div className="aspect-square rounded-full border border-primary/20 bg-gradient-to-tr from-white/50 to-white/10 backdrop-blur-3xl shadow-2xl relative flex items-center justify-center">
-                <div className="absolute inset-8 rounded-full border border-primary/10 animate-[spin_20s_linear_infinite]" />
-                <div className="absolute inset-16 rounded-full border border-secondary/20 animate-[spin_15s_linear_infinite_reverse]" />
+              {/* Glow behind card */}
+              <div className="absolute inset-0 bg-primary/8 rounded-3xl blur-3xl scale-110" />
 
-                <div className="text-center relative z-10 glass-panel p-8 rounded-3xl w-72">
-                  <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <Compass className="w-8 h-8 text-primary" />
+              <div className="relative glass-panel rounded-3xl p-6 shadow-2xl shadow-primary/10 border border-primary/10">
+                {/* Card header */}
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg overflow-hidden">
+                      <img src="/favicon.svg" alt="NorthVoy" className="w-full h-full" />
+                    </div>
+                    <span className="font-display font-bold text-sm">Your Results</span>
                   </div>
-                  <h3 className="font-display font-bold text-xl mb-2">
-                    {t("home.findYourNorth")}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {t("home.simpleQuestions")}
-                  </p>
+                  <span className="text-xs text-muted-foreground bg-muted px-2.5 py-1 rounded-full">3 matches</span>
                 </div>
+
+                {/* Top match */}
+                <div className="rounded-2xl bg-primary/8 border border-primary/20 p-4 mb-3">
+                  <div className="flex items-start justify-between mb-2.5">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Top Match</span>
+                      <h4 className="font-display font-bold text-lg leading-tight">Computer Science</h4>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-3xl font-display font-extrabold text-primary leading-none">94%</div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5">match score</div>
+                    </div>
+                  </div>
+                  <div className="h-1.5 bg-border rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full bg-primary rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: "94%" }}
+                      transition={{ duration: 1.2, delay: 0.6, ease: "easeOut" }}
+                    />
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 mt-3">
+                    {["Problem Solving", "Logic", "Creativity"].map((skill) => (
+                      <span key={skill} className="text-[10px] px-2 py-0.5 bg-primary/10 text-primary rounded-full font-medium">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Other matches */}
+                {[
+                  { name: "Data Science", pct: 81, color: "bg-indigo-500/50" },
+                  { name: "Engineering", pct: 74, color: "bg-violet-500/50" },
+                ].map((m) => (
+                  <div key={m.name} className="flex items-center gap-3 py-2.5 border-b border-border/50 last:border-0">
+                    <div className="flex-1">
+                      <div className="text-sm font-medium">{m.name}</div>
+                      <div className="h-1 bg-border rounded-full mt-1.5 overflow-hidden">
+                        <motion.div
+                          className={`h-full ${m.color} rounded-full`}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${m.pct}%` }}
+                          transition={{ duration: 1.2, delay: 0.8, ease: "easeOut" }}
+                        />
+                      </div>
+                    </div>
+                    <span className="text-sm font-bold text-muted-foreground w-10 text-right">{m.pct}%</span>
+                  </div>
+                ))}
+
+                {/* Footer */}
+                <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1.5">
+                    <GraduationCap className="w-3.5 h-3.5" />
+                    <span>12 universities suggested</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Globe className="w-3.5 h-3.5" />
+                    <span>8 countries</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Free badge */}
+              <div className="absolute -top-3 -right-3 flex items-center gap-1.5 bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg shadow-emerald-500/30">
+                ✓ Free &amp; Instant
               </div>
             </motion.div>
           </div>
