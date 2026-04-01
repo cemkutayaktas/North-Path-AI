@@ -1,3 +1,29 @@
 <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="180" height="180" rx="36" fill="#FF3C00"/>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="180" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1D4ED8"/>
+      <stop offset="100%" stop-color="#6D28D9"/>
+    </linearGradient>
+    <linearGradient id="bg2" x1="0" y1="0" x2="180" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1e3a8a"/>
+      <stop offset="100%" stop-color="#4c1d95"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="180" height="180" rx="38" fill="url(#bg)"/>
+
+  <!-- Subtle inner glow ring -->
+  <rect x="6" y="6" width="168" height="168" rx="33" fill="none" stroke="white" stroke-opacity="0.08" stroke-width="1.5"/>
+
+  <!-- Compass needle — north (white, solid) -->
+  <path d="M90 28 L114 88 L90 96 L66 88 Z" fill="white"/>
+
+  <!-- Compass needle — south (white, dim) -->
+  <path d="M90 152 L114 92 L90 84 L66 92 Z" fill="white" fill-opacity="0.28"/>
+
+  <!-- Center bearing: outer ring -->
+  <circle cx="90" cy="90" r="11" fill="white"/>
+  <!-- Center bearing: inner fill matching background -->
+  <circle cx="90" cy="90" r="6" fill="url(#bg2)"/>
 </svg>

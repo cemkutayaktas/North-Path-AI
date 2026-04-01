@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { Compass, Sun, Moon, ChevronDown, Globe, UserCircle, LogOut, Menu, X, SplitSquareHorizontal, TrendingUp } from "lucide-react";
+import { Sun, Moon, ChevronDown, Globe, UserCircle, LogOut, Menu, X, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLang } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -53,8 +53,8 @@ export function Navbar() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform duration-300">
-              <Compass className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl overflow-hidden shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform duration-300 shrink-0">
+              <img src="/favicon.svg" alt="NorthVoy" className="w-full h-full" />
             </div>
             <span className="font-display font-bold text-lg sm:text-xl tracking-tight text-foreground group-hover:text-primary transition-colors">
               NorthVoy
