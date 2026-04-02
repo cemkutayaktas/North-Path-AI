@@ -186,6 +186,69 @@ export default function Home() {
                   <span>{t("home.evidenceBased")}</span>
                 </div>
               </div>
+
+              {/* Mobile results preview — hidden on desktop (desktop has the right column) */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                className="mt-8 lg:hidden"
+              >
+                <div className="relative glass-panel rounded-2xl p-4 border border-primary/10 shadow-xl shadow-primary/10">
+                  <div className="absolute -top-2.5 -right-2.5 flex items-center gap-1 bg-emerald-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-lg shadow-emerald-500/30">
+                    ✓ Free &amp; Instant
+                  </div>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-md overflow-hidden">
+                        <img src="/favicon.svg" alt="NorthVoy" className="w-full h-full" />
+                      </div>
+                      <span className="text-xs font-semibold">Your Results</span>
+                    </div>
+                    <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">3 matches</span>
+                  </div>
+                  <div className="rounded-xl bg-primary/8 border border-primary/20 p-3 mb-2.5">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div>
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-primary">Top Match</span>
+                        <div className="font-display font-bold text-base leading-tight">Computer Science</div>
+                      </div>
+                      <div className="text-2xl font-display font-extrabold text-primary">94%</div>
+                    </div>
+                    <div className="h-1.5 bg-border rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full bg-primary rounded-full"
+                        initial={{ width: 0 }}
+                        animate={{ width: "94%" }}
+                        transition={{ duration: 1.2, delay: 0.7, ease: "easeOut" }}
+                      />
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 mt-2.5">
+                      {["Problem Solving", "Logic", "Creativity"].map((s) => (
+                        <span key={s} className="text-[9px] px-2 py-0.5 bg-primary/10 text-primary rounded-full font-medium">{s}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[{ name: "Data Science", pct: 81 }, { name: "Engineering", pct: 74 }].map((m) => (
+                      <div key={m.name}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-medium">{m.name}</span>
+                          <span className="text-xs font-bold text-muted-foreground">{m.pct}%</span>
+                        </div>
+                        <div className="h-1 bg-border rounded-full overflow-hidden">
+                          <motion.div
+                            className="h-full bg-indigo-500/50 rounded-full"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${m.pct}%` }}
+                            transition={{ duration: 1.2, delay: 0.9, ease: "easeOut" }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
             </motion.div>
 
             {/* Right side — Results preview mockup */}
