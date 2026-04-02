@@ -127,3 +127,29 @@ html.dark body {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
+
+/* ─── Micro-interactions ───────────────────────────────────────────────────── */
+@layer utilities {
+  /* Cards lift on hover */
+  .card-lift {
+    @apply transition-all duration-200 ease-out;
+  }
+  .card-lift:hover {
+    @apply -translate-y-1 shadow-lg;
+  }
+}
+
+/* Button press feedback — all buttons scale slightly on click */
+button:not(:disabled),
+a[role="button"]:not(:disabled) {
+  @apply active:scale-[0.97];
+  transition-property: color, background-color, border-color, opacity, box-shadow, transform, translate, scale;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Smooth focus rings */
+:focus-visible {
+  @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+  transition: box-shadow 0.15s ease;
+}

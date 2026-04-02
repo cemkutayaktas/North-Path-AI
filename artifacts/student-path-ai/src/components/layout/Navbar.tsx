@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "wouter";
+import { motion, AnimatePresence } from "framer-motion";
 import { Sun, Moon, ChevronDown, Globe, UserCircle, LogOut, Menu, X, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLang } from "@/contexts/LanguageContext";
@@ -63,21 +64,25 @@ export function Navbar() {
 
           {/* Desktop nav links */}
           <div className="hidden md:flex items-center gap-8">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary relative py-2",
-                  location === link.href ? "text-primary" : "text-muted-foreground"
-                )}
-              >
-                {link.label}
-                {location === link.href && (
-                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-primary rounded-full" />
-                )}
-              </Link>
-            ))}
+            {links.map((link) => {
+              const isActive = location === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "text-sm font-medium transition-colors relative py-2 group",
+                    isActive ? "text-primary" : "text-muted-foreground hover:text-primary"
+                  )}
+                >
+                  {link.label}
+                  <span className={cn(
+                    "absolute bottom-0 left-0 h-0.5 bg-primary rounded-full transition-all duration-200 ease-out",
+                    isActive ? "w-full" : "w-0 group-hover:w-full"
+                  )} />
+                </Link>
+              );
+            })}
           </div>
 
           {/* Right controls */}
@@ -177,8 +182,14 @@ export function Navbar() {
       </div>
 
       {/* ─── Mobile menu ─── */}
+      <AnimatePresence>
       {mobileOpen && (
-        <div className="md:hidden border-t border-border/50 bg-card/95 backdrop-blur-xl">
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.22, ease: "easeOut" }}
+          className="md:hidden border-t border-border/50 bg-card/95 backdrop-blur-xl overflow-hidden">
           <div className="px-4 py-4 space-y-1">
             {links.map((link) => (
               <Link
@@ -231,8 +242,9 @@ export function Navbar() {
               </Link>
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </nav>
   );
 }

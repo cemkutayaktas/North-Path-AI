@@ -6,6 +6,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AccountProvider, useAccount } from "@/contexts/AccountContext";
 import { lazy, Suspense, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 // GA4 page-view tracking for SPA route changes
 function usePageTracking() {
@@ -63,21 +64,31 @@ function Router() {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-grow">
-        <Suspense fallback={<PageLoader />}>
-          <Switch>
-            <Route path="/" component={Home} />
-            <Route path="/questionnaire" component={Questionnaire} />
-            <Route path="/results" component={Results} />
-            <Route path="/about" component={About} />
-            <Route path="/auth" component={Auth} />
-            <Route path="/account" component={Account} />
-            <Route path="/reset-password" component={ResetPassword} />
-            <Route path="/compare" component={Compare} />
-            <Route path="/tracker" component={Tracker} />
-            <Route path="/turkiye" component={Turkiye} />
-            <Route component={NotFound} />
-          </Switch>
-        </Suspense>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+          >
+            <Suspense fallback={<PageLoader />}>
+              <Switch>
+                <Route path="/" component={Home} />
+                <Route path="/questionnaire" component={Questionnaire} />
+                <Route path="/results" component={Results} />
+                <Route path="/about" component={About} />
+                <Route path="/auth" component={Auth} />
+                <Route path="/account" component={Account} />
+                <Route path="/reset-password" component={ResetPassword} />
+                <Route path="/compare" component={Compare} />
+                <Route path="/tracker" component={Tracker} />
+                <Route path="/turkiye" component={Turkiye} />
+                <Route component={NotFound} />
+              </Switch>
+            </Suspense>
+          </motion.div>
+        </AnimatePresence>
       </main>
     </div>
   );

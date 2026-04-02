@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
   ArrowRight,
   Sparkles,
@@ -21,6 +21,29 @@ import {
   Star,
 } from "lucide-react";
 import { useLang } from "@/contexts/LanguageContext";
+
+function AnimatedCounter({ value }: { value: string }) {
+  const num = parseInt(value);
+  const suffix = value.replace(/[0-9]/g, "");
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+
+  useEffect(() => {
+    if (!inView) return;
+    const duration = 1400;
+    const start = Date.now();
+    const timer = setInterval(() => {
+      const progress = Math.min((Date.now() - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.round(eased * num));
+      if (progress >= 1) clearInterval(timer);
+    }, 16);
+    return () => clearInterval(timer);
+  }, [inView, num]);
+
+  return <span ref={ref}>{count}{suffix}</span>;
+}
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -365,7 +388,7 @@ export default function Home() {
                   <s.icon className="w-6 h-6 text-primary" />
                 </div>
                 <div className="text-3xl sm:text-4xl font-display font-extrabold text-foreground">
-                  {s.value}
+                  <AnimatedCounter value={s.value} />
                 </div>
                 <div className="text-sm text-muted-foreground mt-1">{s.label}</div>
               </motion.div>
@@ -408,7 +431,7 @@ export default function Home() {
                 whileInView="visible"
                 viewport={{ once: true, margin: "-50px" }}
                 variants={fadeUp}
-                className="glass-panel rounded-2xl p-6 hover:shadow-lg transition-shadow duration-300 group"
+                className="glass-panel rounded-2xl p-6 card-lift hover:shadow-lg group"
               >
                 <div
                   className={`w-12 h-12 rounded-xl ${f.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}
@@ -545,7 +568,7 @@ export default function Home() {
                 whileInView="visible"
                 viewport={{ once: true, margin: "-50px" }}
                 variants={fadeUp}
-                className="glass-panel rounded-2xl p-6"
+                className="glass-panel rounded-2xl p-6 card-lift"
               >
                 <div className="flex gap-1 mb-4">
                   {Array.from({ length: tm.stars }).map((_, j) => (
