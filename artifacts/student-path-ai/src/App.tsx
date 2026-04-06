@@ -19,10 +19,13 @@ function usePageTracking() {
       });
     }
     // Update canonical tag to match current route
-    const canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-    if (canonical) {
-      canonical.href = "https://northvoy.com" + (location === "/" ? "" : location);
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.rel = "canonical";
+      document.head.appendChild(canonical);
     }
+    canonical.href = "https://northvoy.com" + (location === "/" ? "" : location);
   }, [location]);
 }
 
