@@ -15,6 +15,60 @@
       ]
     },
     {
+      "source": "/",
+      "headers": [
+        { "key": "Link", "value": "<https://northvoy.com/>; rel=\"canonical\"" }
+      ]
+    },
+    {
+      "source": "/about",
+      "headers": [
+        { "key": "Link", "value": "<https://northvoy.com/about>; rel=\"canonical\"" }
+      ]
+    },
+    {
+      "source": "/questionnaire",
+      "headers": [
+        { "key": "Link", "value": "<https://northvoy.com/questionnaire>; rel=\"canonical\"" }
+      ]
+    },
+    {
+      "source": "/results",
+      "headers": [
+        { "key": "Link", "value": "<https://northvoy.com/results>; rel=\"canonical\"" }
+      ]
+    },
+    {
+      "source": "/compare",
+      "headers": [
+        { "key": "Link", "value": "<https://northvoy.com/compare>; rel=\"canonical\"" }
+      ]
+    },
+    {
+      "source": "/turkiye",
+      "headers": [
+        { "key": "Link", "value": "<https://northvoy.com/turkiye>; rel=\"canonical\"" }
+      ]
+    },
+    {
+      "source": "/tracker",
+      "headers": [
+        { "key": "Link", "value": "<https://northvoy.com/tracker>; rel=\"canonical\"" }
+      ]
+    },
+    {
+      "source": "/auth",
+      "headers": [
+        { "key": "Link", "value": "<https://northvoy.com/auth>; rel=\"canonical\"" }
+      ]
+    },
+    {
+      "source": "/account",
+      "headers": [
+        { "key": "Link", "value": "<https://northvoy.com/account>; rel=\"canonical\"" }
+      ]
+    },
+    {
       "source": "/assets/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
