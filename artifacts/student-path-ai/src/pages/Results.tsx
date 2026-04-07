@@ -635,6 +635,25 @@ function ExploreTab({ hidden, whyNot }: { hidden: HiddenMatch; whyNot: WhyNotEnt
   );
 }
 
+// ─── Locked Overlay ───────────────────────────────────────────────────────────
+function LockedOverlay({ message }: { message?: string }) {
+  const [, setLocation] = useLocation();
+  return (
+    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-xl bg-background/60 backdrop-blur-sm border border-border/40">
+      <div className="text-center px-6 py-8 max-w-xs">
+        <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+          <UserCircle className="w-6 h-6 text-primary" />
+        </div>
+        <h3 className="font-display font-bold text-base mb-1">Create a free account</h3>
+        <p className="text-sm text-muted-foreground mb-4">{message ?? "Sign up to unlock all your results and save your progress."}</p>
+        <Button size="sm" className="w-full" onClick={() => setLocation("/auth")}>
+          Sign up free →
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function Results() {
   const [, setLocation] = useLocation();
@@ -762,10 +781,12 @@ export default function Results() {
             const pct = Math.round((r.score / topScore) * 100);
             const barColor = i === 0 ? "bg-primary" : i === 1 ? "bg-secondary" : "bg-muted-foreground";
             const rankLabel = i === 0 ? t("results.rank.best") : i === 1 ? t("results.rank.strong") : t("results.rank.good");
+            const locked = !account && i > 0;
             return (
               <Card key={r.major} className={cn(
-                "p-5 border-2 transition-shadow hover:shadow-md",
-                i === 0 ? "border-primary/40 shadow-lg shadow-primary/10" : "border-border/60"
+                "p-5 border-2 transition-shadow hover:shadow-md relative overflow-hidden",
+                i === 0 ? "border-primary/40 shadow-lg shadow-primary/10" : "border-border/60",
+                locked && "select-none"
               )}>
                 <div className="flex items-center justify-between mb-2">
                   <span className={cn(
@@ -788,6 +809,16 @@ export default function Results() {
                 <div className="mt-2 flex items-center gap-1.5">
                   <ConfBadge level={r.confidence} />
                 </div>
+                {locked && (
+                  <div className="absolute inset-0 backdrop-blur-sm bg-background/50 flex items-center justify-center rounded-xl">
+                    <div className="text-center">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-1.5">
+                        <UserCircle className="w-4 h-4 text-primary" />
+                      </div>
+                      <p className="text-xs font-semibold text-foreground">Sign up to unlock</p>
+                    </div>
+                  </div>
+                )}
               </Card>
             );
           })}
@@ -815,34 +846,56 @@ export default function Results() {
           <TabsContent value="matches">
             <div className="space-y-5">
               {results.map((r, i) => (
-                <MajorCard key={r.major} result={r} rank={RANK_CONFIG[i]} index={i} topScore={results[0]?.score ?? 1} />
+                <div key={r.major} className={cn("relative", !account && i > 0 && "pointer-events-none")}>
+                  <div className={cn(!account && i > 0 && "blur-sm select-none")}>
+                    <MajorCard result={r} rank={RANK_CONFIG[i]} index={i} topScore={results[0]?.score ?? 1} />
+                  </div>
+                  {!account && i > 0 && (
+                    <LockedOverlay message="Sign up free to see all your matched majors." />
+                  )}
+                </div>
               ))}
             </div>
           </TabsContent>
 
           <TabsContent value="compare">
-            <Card className="p-6 sm:p-8">
-              <CompareTab results={results} />
-            </Card>
+            <div className="relative">
+              <div className={cn(!account && "blur-sm pointer-events-none select-none")}>
+                <Card className="p-6 sm:p-8">
+                  <CompareTab results={results} />
+                </Card>
+              </div>
+              {!account && <LockedOverlay message="Sign up free to compare your matched majors side by side." />}
+            </div>
           </TabsContent>
 
           <TabsContent value="plan">
-            <Card className="p-6 sm:p-8">
-              {top.twelveMonthPlan ? (
-                <TwelveMonthTab result={top} />
-              ) : (
-                <p className="text-center text-muted-foreground py-8">{t("results.sections.planNotAvailable")}</p>
-              )}
-            </Card>
+            <div className="relative">
+              <div className={cn(!account && "blur-sm pointer-events-none select-none")}>
+                <Card className="p-6 sm:p-8">
+                  {top.twelveMonthPlan ? (
+                    <TwelveMonthTab result={top} />
+                  ) : (
+                    <p className="text-center text-muted-foreground py-8">{t("results.sections.planNotAvailable")}</p>
+                  )}
+                </Card>
+              </div>
+              {!account && <LockedOverlay message="Sign up free to unlock your personalised 12-month action plan." />}
+            </div>
           </TabsContent>
 
           <TabsContent value="explore">
-            <Card className="p-6 sm:p-8">
-              {hidden && whyNot
-                ? <ExploreTab hidden={hidden} whyNot={whyNot} />
-                : <p className="text-center text-muted-foreground py-8">{t("results.sections.noData")}</p>
-              }
-            </Card>
+            <div className="relative">
+              <div className={cn(!account && "blur-sm pointer-events-none select-none")}>
+                <Card className="p-6 sm:p-8">
+                  {hidden && whyNot
+                    ? <ExploreTab hidden={hidden} whyNot={whyNot} />
+                    : <p className="text-center text-muted-foreground py-8">{t("results.sections.noData")}</p>
+                  }
+                </Card>
+              </div>
+              {!account && <LockedOverlay message="Sign up free to explore your hidden match and alternative paths." />}
+            </div>
           </TabsContent>
         </Tabs>
 
