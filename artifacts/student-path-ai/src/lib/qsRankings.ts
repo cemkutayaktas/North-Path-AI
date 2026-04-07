@@ -1,30 +1,30 @@
-// QS World University Rankings 2025
+// QS World University Rankings 2026
 // Maps university names exactly as they appear in universities.ts
 
 export const QS_RANKINGS: Record<string, number | null> = {
   // ── Computer Science & Software Engineering ─────────────────────────────────
   "MIT": 1,
-  "Stanford University": 5,
+  "Stanford University": 3,
   "Carnegie Mellon University": 52,
-  "UC Berkeley": 12,
+  "UC Berkeley": 17,
   "University of Washington": null,
 
-  "TU Munich (TUM)": 37,
+  "TU Munich (TUM)": 22,
   "RWTH Aachen University": 106,
   "KIT Karlsruhe": 131,
   "TU Berlin": 154,
   "University of Stuttgart": null,
 
-  "Imperial College London": 8,
-  "University of Cambridge": 2,
-  "University of Edinburgh": 27,
+  "Imperial College London": 2,
+  "University of Cambridge": 6,
+  "University of Edinburgh": 34,
   "UCL": 9,
-  "University of Manchester": 34,
+  "University of Manchester": 35,
 
-  "University of Toronto": 25,
-  "University of Waterloo": 112,
-  "University of British Columbia": 43,
-  "McGill University": 30,
+  "University of Toronto": 29,
+  "University of Waterloo": 119,
+  "University of British Columbia": 40,
+  "McGill University": 27,
   "University of Alberta": 111,
 
   "TU Delft": 47,
@@ -33,38 +33,38 @@ export const QS_RANKINGS: Record<string, number | null> = {
   "Vrije Universiteit Amsterdam": 185,
   "University of Twente": 183,
 
-  "KTH Royal Institute of Technology": 98,
+  "KTH Royal Institute of Technology": 78,
   "Chalmers University of Technology": 301,
   "Uppsala University": 175,
   "Lund University": 92,
   "Linköping University": 501,
 
   "ETH Zurich": 7,
-  "EPFL": 39,
+  "EPFL": 22,
   "University of Zurich": 109,
   "University of Basel": 151,
   "University of Bern": 158,
 
-  "University of Melbourne": 13,
-  "University of Sydney": 18,
-  "UNSW Sydney": 19,
-  "ANU": 30,
-  "Monash University": 37,
+  "University of Melbourne": 19,
+  "University of Sydney": 25,
+  "UNSW Sydney": 20,
+  "ANU": 32,
+  "Monash University": 36,
 
   // ── Medicine & Health Sciences ───────────────────────────────────────────────
-  "University of Oxford": 3,
-  "King's College London": 40,
+  "University of Oxford": 4,
+  "King's College London": 31,
 
-  "Harvard Medical School": 4,
+  "Harvard Medical School": 5,
   "Johns Hopkins University": 30,
-  "Stanford Medicine": 5,
+  "Stanford Medicine": 3,
   "Mayo Clinic Alix School": null,
   "UCSF": null,
 
-  "Heidelberg University": 87,
-  "LMU Munich": 63,
+  "Heidelberg University": 80,
+  "LMU Munich": 58,
   "Charité — Universitätsmedizin Berlin": null,
-  "TU Munich (Klinikum)": 37,
+  "TU Munich (Klinikum)": 22,
   "University of Göttingen": null,
 
   "Amsterdam UMC": null,
@@ -74,9 +74,9 @@ export const QS_RANKINGS: Record<string, number | null> = {
   "Radboud University": 231,
 
   "University of Queensland": 53,
-  "ANU Medical School": 30,
+  "ANU Medical School": 32,
 
-  "Karolinska Institute": 179,
+  "Karolinska Institute": 70,
   "University of Gothenburg": null,
   "Umeå University": null,
 
@@ -88,15 +88,15 @@ export const QS_RANKINGS: Record<string, number | null> = {
 
   // ── Business Administration & Management ────────────────────────────────────
   "Wharton School (UPenn)": 11,
-  "Harvard Business School": 4,
+  "Harvard Business School": 5,
   "MIT Sloan": 1,
   "Columbia Business School": 22,
-  "Booth School (UChicago)": 21,
+  "Booth School (UChicago)": 13,
 
   "London Business School": null,
-  "Oxford Saïd Business School": 3,
-  "Cambridge Judge Business School": 2,
-  "Imperial College Business School": 8,
+  "Oxford Saïd Business School": 4,
+  "Cambridge Judge Business School": 6,
+  "Imperial College Business School": 2,
   "Warwick Business School": null,
 
   "HEC Paris": null,
@@ -124,32 +124,32 @@ export const QS_RANKINGS: Record<string, number | null> = {
   "ZHAW School of Management": null,
 
   "NUS Business School": 8,
-  "NTU Nanyang Business School": 26,
+  "NTU Nanyang Business School": 12,
   "INSEAD Asia Campus": null,
   "SMU Lee Kong Chian School": null,
   "Singapore Management University": null,
 
   "Ivey Business School (Western)": null,
-  "Rotman School of Management (UofT)": 25,
-  "McGill Desautels Faculty": 30,
+  "Rotman School of Management (UofT)": 29,
+  "McGill Desautels Faculty": 27,
   "Schulich School (York)": null,
   "HEC Montréal": null,
 
   // ── Law & Political Science ──────────────────────────────────────────────────
-  "University of Oxford (Law)": 3,
-  "University of Cambridge (Law)": 2,
-  "London School of Economics": 59,
+  "University of Oxford (Law)": 4,
+  "University of Cambridge (Law)": 6,
+  "London School of Economics": 56,
   "UCL Faculty of Laws": 9,
 
   "Yale Law School": 16,
-  "Harvard Law School": 4,
+  "Harvard Law School": 5,
   "Columbia Law School": 22,
   "NYU School of Law": 40,
-  "University of Chicago Law": 21,
+  "University of Chicago Law": 13,
 
   "Humboldt University Berlin": 120,
-  "LMU Munich (Law)": 63,
-  "University of Heidelberg": 87,
+  "LMU Munich (Law)": 58,
+  "University of Heidelberg": 80,
   "University of Hamburg (Law)": null,
   "Freie Universität Berlin": 98,
 
@@ -159,10 +159,10 @@ export const QS_RANKINGS: Record<string, number | null> = {
   "University of Amsterdam (Law)": 67,
   "Tilburg Law School": null,
 
-  "University of Melbourne (Law)": 13,
-  "University of Sydney Law School": 18,
-  "ANU College of Law": 30,
-  "Monash Law School": 37,
+  "University of Melbourne (Law)": 19,
+  "University of Sydney Law School": 25,
+  "ANU College of Law": 32,
+  "Monash Law School": 36,
   "University of Queensland Law": 53,
 
   "Paris I Panthéon-Sorbonne": 83,
@@ -172,9 +172,9 @@ export const QS_RANKINGS: Record<string, number | null> = {
   "University of Bordeaux (Law)": null,
 
   "Osgoode Hall Law School (York)": null,
-  "McGill Faculty of Law": 30,
-  "University of Toronto Law": 25,
-  "University of British Columbia Law": 43,
+  "McGill Faculty of Law": 27,
+  "University of Toronto Law": 29,
+  "University of British Columbia Law": 40,
   "Dalhousie Law School": null,
 
   // ── Mechanical & Civil Engineering ──────────────────────────────────────────
@@ -183,7 +183,7 @@ export const QS_RANKINGS: Record<string, number | null> = {
   "Georgia Tech": 72,
   "University of Michigan": 23,
 
-  "TU Munich": 37,
+  "TU Munich": 22,
   "RWTH Aachen": 106,
 
   "University of Southampton": 100,
@@ -191,7 +191,7 @@ export const QS_RANKINGS: Record<string, number | null> = {
 
   "Wageningen University": 166,
 
-  "University of New South Wales": 19,
+  "University of New South Wales": 20,
   "University of Adelaide": null,
 
   "University of Applied Sciences Lucerne": null,
@@ -201,7 +201,7 @@ export const QS_RANKINGS: Record<string, number | null> = {
   "University College London": 9,
   "University of Exeter": null,
 
-  "Harvard University (Psychology)": 4,
+  "Harvard University (Psychology)": 5,
   "Yale University": 16,
   "UC San Diego": null,
 
@@ -209,7 +209,7 @@ export const QS_RANKINGS: Record<string, number | null> = {
 
   "University of Tübingen": null,
 
-  "Australian National University": 30,
+  "Australian National University": 32,
 
   "Stockholm University": 261,
   "Göteborg University": null,
@@ -258,11 +258,11 @@ export const QS_RANKINGS: Record<string, number | null> = {
   "ESDIP Madrid": null,
 
   // ── Environmental Science & Sustainability ───────────────────────────────────
-  "University of Cambridge (Environmental)": 2,
+  "University of Cambridge (Environmental)": 6,
   "University of Leeds": 92,
 
   "Yale School of the Environment": 16,
-  "UC Berkeley (Environmental Sciences)": 12,
+  "UC Berkeley (Environmental Sciences)": 17,
   "University of Michigan (SNRE)": 23,
   "Duke Nicholas School": 64,
   "Colorado State University": null,
@@ -281,53 +281,53 @@ export const QS_RANKINGS: Record<string, number | null> = {
   "Stockholm University (Stockholm Resilience Centre)": null,
   "Lund University (LUCSUS)": null,
 
-  "UNSW Sydney (Environmental)": 19,
+  "UNSW Sydney (Environmental)": 20,
   "James Cook University (Marine)": 401,
   "Murdoch University": null,
 
-  "McGill University (Environment)": 30,
-  "UBC (Institute for Resources, Environment)": 43,
+  "McGill University (Environment)": 27,
+  "UBC (Institute for Resources, Environment)": 40,
   "Dalhousie University": null,
   "University of Victoria": null,
 
   // ── Data Science & Statistics ────────────────────────────────────────────────
   "MIT (EECS / Statistics)": 1,
-  "Stanford (Statistics)": 5,
+  "Stanford (Statistics)": 3,
   "Carnegie Mellon (Machine Learning)": 52,
-  "UC Berkeley (CDSS)": 12,
-  "University of Chicago (Statistics)": 21,
+  "UC Berkeley (CDSS)": 17,
+  "University of Chicago (Statistics)": 13,
 
-  "University of Oxford (Statistics)": 3,
-  "University of Cambridge (MPhil Statistics)": 2,
+  "University of Oxford (Statistics)": 4,
+  "University of Cambridge (MPhil Statistics)": 6,
   "UCL (CS / Stats)": 9,
 
-  "LMU Munich (Statistics / Data Science)": 63,
+  "LMU Munich (Statistics / Data Science)": 58,
   "Humboldt University Berlin (Education)": 120,
   "University of Mannheim": null,
 
   "ETH Zurich (Data Science)": 7,
-  "EPFL (Computer and Communication Sciences)": 39,
+  "EPFL (Computer and Communication Sciences)": 22,
   "University of Lausanne": null,
 
-  "University of Waterloo (Statistics)": 112,
+  "University of Waterloo (Statistics)": 119,
   "Simon Fraser University": null,
 
-  "ANU (Statistics)": 30,
-  "Monash University (Data Science)": 37,
+  "ANU (Statistics)": 32,
+  "Monash University (Data Science)": 36,
 
   "NUS (Statistics & Data Science)": 8,
-  "NTU (Data Science)": 26,
+  "NTU (Data Science)": 12,
   "Singapore Management University (IS)": null,
   "Singapore Institute of Technology": null,
   "SUTD": null,
 
   // ── Education & Teaching ─────────────────────────────────────────────────────
   "UCL Institute of Education": 9,
-  "University of Cambridge (Faculty of Education)": 2,
-  "University of Oxford (Dept of Education)": 3,
+  "University of Cambridge (Faculty of Education)": 6,
+  "University of Oxford (Dept of Education)": 4,
 
-  "Harvard Graduate School of Education": 4,
-  "Stanford Graduate School of Education": 5,
+  "Harvard Graduate School of Education": 5,
+  "Stanford Graduate School of Education": 3,
   "Teachers College Columbia": 22,
   "University of Michigan (Education)": 23,
   "Vanderbilt Peabody College": null,
@@ -347,14 +347,14 @@ export const QS_RANKINGS: Record<string, number | null> = {
   "University of Turku": null,
   "Åbo Akademi University": null,
 
-  "University of Melbourne (Graduate School of Education)": 13,
-  "Monash University (Education)": 37,
+  "University of Melbourne (Graduate School of Education)": 19,
+  "Monash University (Education)": 36,
   "Queensland University of Technology": 230,
   "Australian Catholic University": null,
 
-  "OISE — University of Toronto": 25,
-  "University of British Columbia (Faculty of Education)": 43,
-  "McGill Faculty of Education": 30,
+  "OISE — University of Toronto": 29,
+  "University of British Columbia (Faculty of Education)": 40,
+  "McGill Faculty of Education": 27,
   "York Faculty of Education": null,
   "University of Alberta (Education)": 111,
 

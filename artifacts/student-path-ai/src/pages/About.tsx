@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
-import { MessageSquare, Cpu, Map, Users, Mail } from "lucide-react";
+import { MessageSquare, Cpu, Map, Users, Mail, Instagram } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/contexts/LanguageContext";
@@ -150,13 +150,33 @@ export default function About() {
           <p className="text-muted-foreground text-sm mb-4 max-w-md mx-auto">
             {t("about.contactDesc")}
           </p>
-          <a
-            href="mailto:northvoy@gmail.com"
-            className="inline-flex items-center gap-2 text-primary font-semibold hover:underline text-sm"
-          >
-            <Mail className="w-4 h-4" />
-            northvoy@gmail.com
-          </a>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a
+              href="mailto:northvoy@gmail.com"
+              className="inline-flex items-center gap-2 text-primary font-semibold hover:underline text-sm"
+            >
+              <Mail className="w-4 h-4" />
+              northvoy@gmail.com
+            </a>
+            <a
+              href="https://instagram.com/NorthVoyAI"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-primary font-semibold hover:underline text-sm"
+            >
+              <Instagram className="w-4 h-4" />
+              @NorthVoyAI
+            </a>
+            <a
+              href="https://tiktok.com/@NorthVoyAI"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-primary font-semibold hover:underline text-sm"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 0 0-.79-.05A6.34 6.34 0 0 0 3.15 15a6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V8.7a8.16 8.16 0 0 0 4.76 1.52v-3.4a4.85 4.85 0 0 1-1-.13z"/></svg>
+              @NorthVoyAI
+            </a>
+          </div>
         </div>
 
       </div>

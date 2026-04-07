@@ -312,12 +312,12 @@ const en = {
     teamTitle: "App Developers",
     footerNote: "NorthVoy is a student project built for educational and portfolio purposes.",
     roles: {
-      cem: "Full-Stack Development",
-      doruk: "UI / UX Design",
+      cem: "Founder & Full-Stack Developer",
+      doruk: "Growth Manager",
       devin: "Matching Logic & Data",
       can: "Research & Content Strategy",
     },
-    contactTitle: "Get in Touch",
+    contactTitle: "Contact Information",
     contactDesc: "Have questions, feedback, or partnership inquiries? We'd love to hear from you.",
   },
   compare: {
@@ -942,12 +942,12 @@ const tr: typeof en = {
     teamTitle: "Uygulama Geliştiricileri",
     footerNote: "NorthVoy, eğitim ve portfolyo amaçları için oluşturulmuş bir öğrenci projesidir.",
     roles: {
-      cem: "Full-Stack Geliştirme",
-      doruk: "UI / UX Tasarım",
+      cem: "Kurucu & Full-Stack Geliştirici",
+      doruk: "Büyüme Yöneticisi",
       devin: "Eşleştirme Mantığı & Veri",
       can: "Araştırma & İçerik Stratejisi",
     },
-    contactTitle: "İletişime Geçin",
+    contactTitle: "İletişim Bilgileri",
     contactDesc: "Sorularınız, geri bildirimleriniz veya ortaklık teklifleriniz mi var? Sizden haber almaktan mutluluk duyarız.",
   },
   compare: {
@@ -1566,12 +1566,12 @@ const de: typeof en = {
     teamTitle: "App-Entwickler",
     footerNote: "NorthVoy ist ein Studentenprojekt für Bildungs- und Portfoliozwecke.",
     roles: {
-      cem: "Full-Stack-Entwicklung",
-      doruk: "UI / UX Design",
+      cem: "Gründer & Full-Stack-Entwickler",
+      doruk: "Growth Manager",
       devin: "Matching-Logik & Daten",
       can: "Forschung & Content-Strategie",
     },
-    contactTitle: "Kontakt aufnehmen",
+    contactTitle: "Kontaktinformationen",
     contactDesc: "Haben Sie Fragen, Feedback oder Partnerschaftsanfragen? Wir freuen uns von Ihnen zu hören.",
   },
   compare: {
