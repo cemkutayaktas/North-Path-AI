@@ -262,9 +262,36 @@ export default function About() {
             </h2>
           </FadeUp>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
-            {DEVELOPERS.map((dev, i) => (
-              <FadeUp key={dev.name} delay={i * 0.08}>
+          {/* Founder card — full-width elevated */}
+          <FadeUp delay={0}>
+            <div
+              className="flex flex-col sm:flex-row items-center sm:items-start gap-6 p-7 rounded-2xl mb-5 transition-all duration-200 hover:-translate-y-0.5"
+              style={{ background: "rgba(59,130,246,0.07)", border: "1px solid rgba(59,130,246,0.18)" }}
+            >
+              <div className="shrink-0">
+                <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-xl ring-2 ring-blue-500/30">
+                  <img
+                    src={`${import.meta.env.BASE_URL}images/cem-avatar.png`}
+                    alt="Cem Kutay Aktaş"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+              <div className="text-center sm:text-left">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase mb-2"
+                  style={{ background: "rgba(59,130,246,0.15)", color: "#60a5fa", border: "1px solid rgba(59,130,246,0.2)" }}>
+                  {t("about.founderBadge")}
+                </div>
+                <h3 className="text-base font-bold mb-1" style={{ color: "#f1f5f9" }}>Cem Kutay Aktaş</h3>
+                <p className="text-sm" style={{ color: "#475569" }}>{t("about.roles.cem")}</p>
+              </div>
+            </div>
+          </FadeUp>
+
+          {/* Rest of team — 3-column grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {DEVELOPERS.filter(d => d.key !== "cem").map((dev, i) => (
+              <FadeUp key={dev.name} delay={(i + 1) * 0.08}>
                 <div
                   className="flex flex-col items-center text-center p-6 rounded-2xl transition-all duration-200 hover:-translate-y-1"
                   style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}

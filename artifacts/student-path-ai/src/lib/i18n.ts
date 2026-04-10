@@ -383,6 +383,7 @@ const en = {
     privacyBadge: "100% Private",
     techDesc: "All analysis runs entirely in your browser using predefined rule-based scoring logic. Your answers are stored only in your device's local storage and are never transmitted to any server or third party. University and country suggestions are illustrative examples for guidance only — not absolute rankings.",
     teamTitle: "App Developers",
+    founderBadge: "Founder",
     footerNote: "NorthVoy is a student project built for educational and portfolio purposes.",
     roles: {
       cem: "Founder & Full-Stack Developer",
@@ -1085,6 +1086,7 @@ const tr: typeof en = {
     privacyBadge: "%100 Gizli",
     techDesc: "Tüm analizler, tarayıcınızda önceden tanımlanmış kural tabanlı puanlama mantığı kullanılarak tamamen çalışır. Yanıtlarınız yalnızca cihazınızın yerel depolama alanında saklanır ve hiçbir sunucuya veya üçüncü tarafa iletilmez. Üniversite ve ülke önerileri yalnızca rehberlik amaçlı örneklerdir.",
     teamTitle: "Uygulama Geliştiricileri",
+    founderBadge: "Kurucu",
     footerNote: "NorthVoy, eğitim ve portfolyo amaçları için oluşturulmuş bir öğrenci projesidir.",
     roles: {
       cem: "Kurucu & Full-Stack Geliştirici",
@@ -1781,6 +1783,7 @@ const de: typeof en = {
     privacyBadge: "100% Privat",
     techDesc: "Alle Analysen laufen vollständig in deinem Browser mit vordefinierter regelbasierter Scoring-Logik. Deine Antworten werden nur im lokalen Speicher deines Geräts gespeichert und niemals an Server oder Dritte übertragen. Universitäts- und Ländervorschläge sind nur als Beispiele zur Orientierung gedacht.",
     teamTitle: "App-Entwickler",
+    founderBadge: "Gründer",
     footerNote: "NorthVoy ist ein Studentenprojekt für Bildungs- und Portfoliozwecke.",
     roles: {
       cem: "Gründer & Full-Stack-Entwickler",
