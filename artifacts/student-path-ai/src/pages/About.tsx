@@ -296,9 +296,19 @@ export default function About() {
                   className="flex flex-col items-center text-center p-6 rounded-2xl transition-all duration-200 hover:-translate-y-1"
                   style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
                 >
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${dev.color} flex items-center justify-center mb-4 shadow-lg`}>
-                    <span className="text-white text-sm font-bold">{dev.initials}</span>
-                  </div>
+                  {dev.key === "doruk" ? (
+                    <div className="w-14 h-14 rounded-2xl overflow-hidden mb-4 shadow-lg ring-1 ring-white/10">
+                      <img
+                        src={`${import.meta.env.BASE_URL}images/doruk-avatar.png`}
+                        alt="Doruk Uzer"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${dev.color} flex items-center justify-center mb-4 shadow-lg`}>
+                      <span className="text-white text-sm font-bold">{dev.initials}</span>
+                    </div>
+                  )}
                   <h3 className="text-sm font-bold leading-snug mb-1.5" style={{ color: "#f1f5f9" }}>{dev.name}</h3>
                   <p className="text-[11px] leading-snug" style={{ color: "#475569" }}>
                     {t(`about.roles.${dev.key}`)}
