@@ -79,4 +79,127 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://northvoy.com/auth"/>
   </url>
 
+  <!-- Blog -->
+  <url>
+    <loc>https://northvoy.com/blog</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://northvoy.com/blog"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://northvoy.com/blog"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://northvoy.com/blog"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://northvoy.com/blog"/>
+  </url>
+
+  <url>
+    <loc>https://northvoy.com/blog/how-to-choose-a-university-major</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://northvoy.com/blog/how-to-choose-a-university-major"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://northvoy.com/blog/how-to-choose-a-university-major"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://northvoy.com/blog/how-to-choose-a-university-major"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://northvoy.com/blog/how-to-choose-a-university-major"/>
+  </url>
+
+  <url>
+    <loc>https://northvoy.com/blog/best-countries-for-international-students</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://northvoy.com/blog/best-countries-for-international-students"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://northvoy.com/blog/best-countries-for-international-students"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://northvoy.com/blog/best-countries-for-international-students"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://northvoy.com/blog/best-countries-for-international-students"/>
+  </url>
+
+  <url>
+    <loc>https://northvoy.com/blog/what-is-qs-rankings</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://northvoy.com/blog/what-is-qs-rankings"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://northvoy.com/blog/what-is-qs-rankings"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://northvoy.com/blog/what-is-qs-rankings"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://northvoy.com/blog/what-is-qs-rankings"/>
+  </url>
+
+  <url>
+    <loc>https://northvoy.com/blog/how-to-write-a-university-application</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://northvoy.com/blog/how-to-write-a-university-application"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://northvoy.com/blog/how-to-write-a-university-application"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://northvoy.com/blog/how-to-write-a-university-application"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://northvoy.com/blog/how-to-write-a-university-application"/>
+  </url>
+
+  <!-- Country Guides -->
+  <url>
+    <loc>https://northvoy.com/countries</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://northvoy.com/countries"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://northvoy.com/countries"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://northvoy.com/countries"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://northvoy.com/countries"/>
+  </url>
+
+  <url>
+    <loc>https://northvoy.com/countries/germany</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://northvoy.com/countries/germany"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://northvoy.com/countries/germany"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://northvoy.com/countries/germany"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://northvoy.com/countries/germany"/>
+  </url>
+
+  <url>
+    <loc>https://northvoy.com/countries/uk</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://northvoy.com/countries/uk"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://northvoy.com/countries/uk"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://northvoy.com/countries/uk"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://northvoy.com/countries/uk"/>
+  </url>
+
+  <url>
+    <loc>https://northvoy.com/countries/canada</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://northvoy.com/countries/canada"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://northvoy.com/countries/canada"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://northvoy.com/countries/canada"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://northvoy.com/countries/canada"/>
+  </url>
+
+  <url>
+    <loc>https://northvoy.com/countries/usa</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://northvoy.com/countries/usa"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://northvoy.com/countries/usa"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://northvoy.com/countries/usa"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://northvoy.com/countries/usa"/>
+  </url>
+
+  <url>
+    <loc>https://northvoy.com/countries/netherlands</loc>
+    <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://northvoy.com/countries/netherlands"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://northvoy.com/countries/netherlands"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://northvoy.com/countries/netherlands"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://northvoy.com/countries/netherlands"/>
+  </url>
+
 </urlset>

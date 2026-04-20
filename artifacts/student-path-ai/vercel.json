@@ -69,6 +69,72 @@
       ]
     },
     {
+      "source": "/blog",
+      "headers": [
+        { "key": "Link", "value": "<https://northvoy.com/blog>; rel=\"canonical\"" }
+      ]
+    },
+    {
+      "source": "/blog/how-to-choose-a-university-major",
+      "headers": [
+        { "key": "Link", "value": "<https://northvoy.com/blog/how-to-choose-a-university-major>; rel=\"canonical\"" }
+      ]
+    },
+    {
+      "source": "/blog/best-countries-for-international-students",
+      "headers": [
+        { "key": "Link", "value": "<https://northvoy.com/blog/best-countries-for-international-students>; rel=\"canonical\"" }
+      ]
+    },
+    {
+      "source": "/blog/what-is-qs-rankings",
+      "headers": [
+        { "key": "Link", "value": "<https://northvoy.com/blog/what-is-qs-rankings>; rel=\"canonical\"" }
+      ]
+    },
+    {
+      "source": "/blog/how-to-write-a-university-application",
+      "headers": [
+        { "key": "Link", "value": "<https://northvoy.com/blog/how-to-write-a-university-application>; rel=\"canonical\"" }
+      ]
+    },
+    {
+      "source": "/countries",
+      "headers": [
+        { "key": "Link", "value": "<https://northvoy.com/countries>; rel=\"canonical\"" }
+      ]
+    },
+    {
+      "source": "/countries/germany",
+      "headers": [
+        { "key": "Link", "value": "<https://northvoy.com/countries/germany>; rel=\"canonical\"" }
+      ]
+    },
+    {
+      "source": "/countries/uk",
+      "headers": [
+        { "key": "Link", "value": "<https://northvoy.com/countries/uk>; rel=\"canonical\"" }
+      ]
+    },
+    {
+      "source": "/countries/canada",
+      "headers": [
+        { "key": "Link", "value": "<https://northvoy.com/countries/canada>; rel=\"canonical\"" }
+      ]
+    },
+    {
+      "source": "/countries/usa",
+      "headers": [
+        { "key": "Link", "value": "<https://northvoy.com/countries/usa>; rel=\"canonical\"" }
+      ]
+    },
+    {
+      "source": "/countries/netherlands",
+      "headers": [
+        { "key": "Link", "value": "<https://northvoy.com/countries/netherlands>; rel=\"canonical\"" }
+      ]
+    },
+    {
       "source": "/assets/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
