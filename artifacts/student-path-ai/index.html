@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NorthVoy — Discover Your Ideal University Major</title>
-    <meta name="description" content="Find your ideal university major in 5 minutes. NorthVoy matches high school students with 20+ majors, career paths, and universities across 60+ countries." />
+    <title>NorthVoy | Free University Major Quiz — Find Your Ideal Path</title>
+    <meta name="description" content="NorthVoy: Find your ideal university major in 5 minutes. Free quiz matches high school students with 20+ majors, career paths, and top universities across 60+ countries." />
     <meta name="keywords" content="university major quiz, career guidance, NorthVoy, student career test, university path finder, academic guidance, major matching" />
     <meta name="author" content="NorthVoy" />
     <meta name="robots" content="index, follow" />
@@ -63,15 +63,43 @@
       gtag('config', 'G-36VV99K85B', { send_page_view: false });
     </script>
 
+    <!-- Structured Data: WebSite (brand sitelinks + SearchAction) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "NorthVoy",
+      "alternateName": "NorthVoy — University Major Finder",
+      "url": "https://northvoy.com",
+      "description": "NorthVoy is a free academic guidance tool helping high school students discover their ideal university major.",
+      "inLanguage": ["en", "tr", "de"],
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://northvoy.com/questionnaire"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
     <!-- Structured Data: Organization -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "NorthVoy",
+      "legalName": "NorthVoy",
       "url": "https://northvoy.com",
-      "logo": "https://northvoy.com/favicon.svg",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://northvoy.com/favicon-32x32.png",
+        "width": 32,
+        "height": 32
+      },
       "description": "Free academic guidance tool helping high school students discover their ideal university major.",
+      "foundingDate": "2024",
       "sameAs": [
         "https://instagram.com/NorthVoyAI",
         "https://tiktok.com/@NorthVoyAI"
