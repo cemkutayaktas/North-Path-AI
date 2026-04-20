@@ -8,8 +8,10 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   SplitSquareHorizontal, X, CheckCircle2, Briefcase, Zap,
-  Globe, DollarSign, Route, Search, RotateCcw,
+  Globe, DollarSign, Route, Search, RotateCcw, TrendingUp, Download,
 } from "lucide-react";
+import { generateComparePDF, CompareExportEntry } from "@/lib/comparePdf";
+import { SALARY_DATA, GROWTH_COLOR, fmtK } from "@/lib/salaryData";
 
 const MAJOR_ICONS: Record<string, string> = {
   "Computer Science & Software Engineering": "💻",
@@ -54,6 +56,7 @@ export default function Compare() {
   const { t, lang } = useLang();
   const [selected, setSelected] = useState<string[]>([]);
   const [search, setSearch] = useState("");
+  const [exportingPdf, setExportingPdf] = useState(false);
 
   const filtered = MAJORS.filter(m =>
     tContent(lang, "majors", m).toLowerCase().includes(search.toLowerCase())
@@ -68,6 +71,23 @@ export default function Compare() {
   };
 
   const canCompare = selected.length >= 2;
+
+  const handleExportPDF = () => {
+    setExportingPdf(true);
+    const entries: CompareExportEntry[] = selected.map(major => {
+      const data = MAJOR_DATA[major as keyof typeof MAJOR_DATA];
+      return {
+        major,
+        skills: data?.skills ?? [],
+        careers: data?.careers ?? [],
+        countries: data?.countries ?? [],
+        studyCostLabel: data?.studyCostLabel ?? "",
+        pathways: (data?.pathways ?? []).map(p => ({ label: p.name, roles: p.roles })),
+      };
+    });
+    generateComparePDF(entries);
+    setExportingPdf(false);
+  };
 
   return (
     <div className="min-h-screen pt-24 pb-24 px-4 sm:px-6 lg:px-8">
@@ -164,6 +184,16 @@ export default function Compare() {
                 <div className="h-px flex-1 bg-border/60" />
                 <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t("compare.comparisonLabel")}</span>
                 <div className="h-px flex-1 bg-border/60" />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExportPDF}
+                  disabled={exportingPdf}
+                  className="gap-2 shrink-0"
+                >
+                  <Download className="w-4 h-4" />
+                  {exportingPdf ? t("compare.exportingPDF") : t("compare.exportPDF")}
+                </Button>
               </div>
 
               <div className="overflow-x-auto">
@@ -209,6 +239,25 @@ export default function Compare() {
                                 ))}
                               </div>
                             </div>
+
+                            {/* Salary & Job Growth */}
+                            {(() => {
+                              const salary = SALARY_DATA[major];
+                              if (!salary) return null;
+                              return (
+                                <div>
+                                  <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-emerald-600 mb-2">
+                                    <TrendingUp className="w-3 h-3" /> {t("compare.salaryRange")}
+                                  </div>
+                                  <p className="text-xs font-semibold text-foreground/80">
+                                    {fmtK(salary.avgSalaryUSD[0])}–{fmtK(salary.avgSalaryUSD[1])}
+                                  </p>
+                                  <p className={cn("text-[10px] font-medium mt-0.5", GROWTH_COLOR[salary.growthLabel])}>
+                                    {t("compare.jobGrowth")}: +{salary.jobGrowthPct}%
+                                  </p>
+                                </div>
+                              );
+                            })()}
 
                             {/* Countries */}
                             <div>

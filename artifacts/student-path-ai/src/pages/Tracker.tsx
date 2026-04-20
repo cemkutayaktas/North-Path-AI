@@ -1,18 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAccount } from "@/contexts/AccountContext";
 import type { ApplicationDeadline } from "@/contexts/AccountContext";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useLang } from "@/contexts/LanguageContext";
 import {
   CalendarDays, Plus, Trash2, GraduationCap, Clock,
   CheckCircle2, XCircle, Loader2, ClipboardList, Edit2, X, Save,
-  TrendingUp, AlertTriangle, FileCheck,
+  TrendingUp, AlertTriangle, FileCheck, Bell,
 } from "lucide-react";
+import {
+  getNotificationPermission,
+  requestNotificationPermission,
+  scheduleDeadlineNotifications,
+  cancelAllNotifications,
+} from "@/lib/notifications";
 
 type Status = ApplicationDeadline["status"];
 
@@ -229,10 +236,31 @@ export default function Tracker() {
   const [, setLocation] = useLocation();
   const { account, loading, setDeadlines } = useAccount();
   const [showForm, setShowForm] = useState(false);
+  const notifHandles = useRef<number[]>([]);
+  const [notifPermission, setNotifPermission] = useState<NotificationPermission>(() =>
+    getNotificationPermission()
+  );
 
   useEffect(() => {
     if (!loading && !account) setLocation("/auth");
   }, [loading, account, setLocation]);
+
+  useEffect(() => {
+    if (notifPermission === "granted" && account?.deadlines?.length) {
+      notifHandles.current = scheduleDeadlineNotifications(account.deadlines, {
+        title: t("tracker.notifTitle"),
+        sevenDays: (label) => t("tracker.notif7Days").replace("{0}", label),
+        oneDay: (label) => t("tracker.notif1Day").replace("{0}", label),
+      });
+    }
+    return () => cancelAllNotifications(notifHandles.current);
+  }, [notifPermission, account?.deadlines]);
+
+  // Only update permission state; the effect above owns scheduling.
+  const handleToggleNotifications = async () => {
+    await requestNotificationPermission();
+    setNotifPermission(getNotificationPermission());
+  };
 
   if (loading || !account) {
     return (
@@ -321,6 +349,26 @@ export default function Tracker() {
               <p className="text-xs text-muted-foreground mt-0.5">{s.label}</p>
             </Card>
           ))}
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+          <div className="flex items-center gap-3 p-4 rounded-xl border border-border bg-muted/30 mb-6">
+            <Bell className="w-5 h-5 text-muted-foreground shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-foreground">
+                {notifPermission === "granted" ? t("tracker.remindersEnabled") : t("tracker.enableReminders")}
+              </p>
+              {notifPermission === "denied" && (
+                <p className="text-xs text-muted-foreground mt-0.5">{t("tracker.remindersBlocked")}</p>
+              )}
+            </div>
+            {notifPermission !== "denied" && (
+              <Switch
+                checked={notifPermission === "granted"}
+                onCheckedChange={handleToggleNotifications}
+              />
+            )}
+          </div>
         </motion.div>
 
         {/* Add form */}

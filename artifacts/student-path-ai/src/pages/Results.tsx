@@ -7,7 +7,9 @@ import {
 } from "@/lib/store";
 import { calculateResults, getProfileType } from "@/lib/matching";
 import { generatePDF } from "@/lib/pdf";
+import { shareResults } from "@/lib/shareResults";
 import { UNIVERSITIES_BY_COUNTRY } from "@/lib/universities";
+import { SALARY_DATA, GROWTH_COLOR, salaryChipText } from "@/lib/salaryData";
 import { getQSRank } from "@/lib/qsRankings";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -25,6 +27,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { tContent } from "@/lib/i18n";
 import { useAccount } from "@/contexts/AccountContext";
 import { UniversityDrawer } from "@/components/UniversityDrawer";
+import { toast } from "sonner";
 
 // ─── Color palettes ───────────────────────────────────────────────────────────
 const PROFILE_COLORS: Record<string, { bg: string; text: string; border: string; badge: string }> = {
@@ -217,6 +220,16 @@ function MajorCard({ result, rank, index, topScore }: { result: MatchResult; ran
               <h3 className="text-lg sm:text-xl font-display font-bold leading-tight">{tContent(lang, "majors", result.major)}</h3>
               <div className="flex flex-wrap items-center gap-2 mt-1.5">
                 <ConfBadge level={result.confidence} />
+                {(() => {
+                  const entry = SALARY_DATA[result.major];
+                  if (!entry) return null;
+                  return (
+                    <span className={cn("inline-flex items-center gap-1 text-[10px] font-semibold", GROWTH_COLOR[entry.growthLabel])}>
+                      <TrendingUp className="w-3 h-3 shrink-0" />
+                      {salaryChipText(entry)}
+                    </span>
+                  );
+                })()}
                 <span className={cn("text-[10px] font-semibold", result.studyCostColor)}>
                   💰 {t("results.sections.studyCostPrefix")} {result.studyCostLabel}
                 </span>
@@ -511,45 +524,66 @@ function CompareTab({ results }: { results: MatchResult[] }) {
 }
 
 // ─── Tab 3: 12-Month Plan ─────────────────────────────────────────────────────
-function TwelveMonthTab({ result }: { result: MatchResult }) {
+function TwelveMonthTab({ results }: { results: MatchResult[] }) {
   const { t, lang } = useLang();
-  const plan = result.twelveMonthPlan;
-  if (!plan) return null;
-  const quarters = [
-    { ...plan.q1, color: "border-blue-400", badge: "bg-blue-100 text-blue-700" },
-    { ...plan.q2, color: "border-indigo-400", badge: "bg-indigo-100 text-indigo-700" },
-    { ...plan.q3, color: "border-purple-400", badge: "bg-purple-100 text-purple-700" },
-    { ...plan.q4, color: "border-pink-400", badge: "bg-pink-100 text-pink-700" },
-  ];
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const selectedResult = results[selectedIndex] ?? results[0];
+  const plan = selectedResult.twelveMonthPlan;
 
   return (
     <div>
-      <div className="text-center mb-6">
-        <h3 className="text-xl font-display font-bold">{t("results.sections.planNext12Months")}</h3>
-        <p className="text-sm text-muted-foreground mt-1">
-          {t("results.sections.planRoadmapPrefix")} <span className="font-semibold text-primary">{tContent(lang, "majors", result.major)}</span>.
-        </p>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        {quarters.map((q, i) => (
-          <Card key={i} className={cn("border-l-4 p-6", q.color)}>
-            <div className={cn("inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full mb-3", q.badge)}>
-              <CalendarDays className="w-3 h-3" />{t("results.sections.quarterLabel")} {i + 1}
-            </div>
-            <h4 className="font-bold font-display text-sm mb-3">{q.title}</h4>
-            <ul className="space-y-2.5">
-              {q.focus.map((f, j) => (
-                <li key={j} className="flex items-start gap-2 text-sm text-foreground/80">
-                  <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />{f}
-                </li>
-              ))}
-            </ul>
-          </Card>
+      <div className="flex gap-2 mb-6 flex-wrap">
+        {results.map((_r, i) => (
+          <button
+            key={i}
+            onClick={() => setSelectedIndex(i)}
+            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+              selectedIndex === i
+                ? "bg-primary text-primary-foreground"
+                : "border border-border text-muted-foreground hover:text-foreground hover:border-foreground"
+            }`}
+          >
+            {t(`results.sections.planMatch${i + 1}`)}
+          </button>
         ))}
       </div>
-      <div className="mt-5 rounded-xl bg-muted/30 border border-border/50 p-4 text-sm text-muted-foreground text-center">
-        {t("results.sections.planNote")}
-      </div>
+      {!plan ? (
+        <p className="text-center text-muted-foreground py-8">{t("results.sections.planNotAvailable")}</p>
+      ) : (
+        <>
+          <div className="text-center mb-6">
+            <h3 className="text-xl font-display font-bold">{t("results.sections.planNext12Months")}</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              {t("results.sections.planRoadmapPrefix")} <span className="font-semibold text-primary">{tContent(lang, "majors", selectedResult.major)}</span>.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {[
+              { ...plan.q1, color: "border-blue-400", badge: "bg-blue-100 text-blue-700" },
+              { ...plan.q2, color: "border-indigo-400", badge: "bg-indigo-100 text-indigo-700" },
+              { ...plan.q3, color: "border-purple-400", badge: "bg-purple-100 text-purple-700" },
+              { ...plan.q4, color: "border-pink-400", badge: "bg-pink-100 text-pink-700" },
+            ].map((q, i) => (
+              <Card key={i} className={cn("border-l-4 p-6", q.color)}>
+                <div className={cn("inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full mb-3", q.badge)}>
+                  <CalendarDays className="w-3 h-3" />{t("results.sections.quarterLabel")} {i + 1}
+                </div>
+                <h4 className="font-bold font-display text-sm mb-3">{q.title}</h4>
+                <ul className="space-y-2.5">
+                  {q.focus.map((f, j) => (
+                    <li key={j} className="flex items-start gap-2 text-sm text-foreground/80">
+                      <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />{f}
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            ))}
+          </div>
+          <div className="mt-5 rounded-xl bg-muted/30 border border-border/50 p-4 text-sm text-muted-foreground text-center">
+            {t("results.sections.planNote")}
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -735,6 +769,18 @@ export default function Results() {
     setTimeout(() => setSavedToAccount(false), 3000);
   };
 
+  const handleNativeShare = async () => {
+    if (!results || !profile) return;
+    const outcome = await shareResults(results, profile);
+    if (outcome === "shared") {
+      toast.success(t("results.nativeShareShared"));
+    } else if (outcome === "copied") {
+      toast.success(t("results.nativeShareCopied"));
+    } else {
+      toast.error(t("results.nativeShareFailed"));
+    }
+  };
+
   if (!results) return null;
 
   const top = results[0];
@@ -873,11 +919,7 @@ export default function Results() {
             <div className="relative">
               <div className={cn(!account && "blur-sm pointer-events-none select-none")}>
                 <Card className="p-6 sm:p-8">
-                  {top.twelveMonthPlan ? (
-                    <TwelveMonthTab result={top} />
-                  ) : (
-                    <p className="text-center text-muted-foreground py-8">{t("results.sections.planNotAvailable")}</p>
-                  )}
+                  <TwelveMonthTab results={results} />
                 </Card>
               </div>
               {!account && <LockedOverlay message="Sign up free to unlock your personalised 12-month action plan." />}
@@ -912,6 +954,12 @@ export default function Results() {
               {shareCopied
                 ? <><Check className="w-4 h-4 mr-2 text-green-500" />{t("results.shareCopied")}</>
                 : <><Share2 className="w-4 h-4 mr-2" />{t("results.shareBtn")}</>}
+            </Button>
+          )}
+          {!isSharedView && (
+            <Button variant="outline" size="lg" onClick={handleNativeShare} className="gap-2">
+              <Share2 className="w-4 h-4" />
+              {t("results.nativeShareBtn")}
             </Button>
           )}
           {!isSharedView && account && (

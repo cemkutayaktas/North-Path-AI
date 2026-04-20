@@ -1,4 +1,4 @@
-export type Lang = "en" | "tr" | "de" | "fr" | "es";
+export type Lang = "en" | "tr" | "de";
 
 const en = {
   nav: {
@@ -7,6 +7,7 @@ const en = {
     about: "About",
     startQuiz: "Start Quiz",
     blog: "Blog",
+    countries: "Countries",
   },
   home: {
     badge: "Rule-Based Academic Guidance",
@@ -806,6 +807,7 @@ const tr: typeof en = {
     about: "Hakkında",
     startQuiz: "Teste Başla",
     blog: "Blog",
+    countries: "Ülkeler",
   },
   home: {
     badge: "Kural Tabanlı Akademik Rehberlik",
@@ -1598,6 +1600,7 @@ const de: typeof en = {
     about: "Über uns",
     startQuiz: "Quiz starten",
     blog: "Blog",
+    countries: "Länder",
   },
   home: {
     badge: "Regelbasierte Studienberatung",
