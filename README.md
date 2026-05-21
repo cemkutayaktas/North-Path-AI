@@ -155,4 +155,10 @@ Deployed on **Vercel** with auto-deploy on every push to `main`.
 
 ## License
 
-MIT — free to use, fork, and build upon.
+Copyright © 2024 Cem Kutay Aktaş. All rights reserved.
+
+The source code is publicly visible for portfolio and educational purposes.
+Commercial use, redistribution, or deployment of this codebase or substantial
+portions of it is **not permitted** without explicit written permission from the author.
+
+Contact: northvoy@gmail.com
